@@ -248,8 +248,8 @@ impl Solution {
                 let left_height = Solution::height_2(&current_root.borrow().left, 0);
                 let right_height = Solution::height_2(&current_root.borrow().right, 0);
                 let difference = (left_height as i32 - right_height as i32).abs();
-                if difference>1{
-                  return false;
+                if difference > 1 {
+                    return false;
                 }
                 let left_child = current_root.borrow_mut().left.take();
                 let right_child = current_root.borrow_mut().right.take();
@@ -259,7 +259,7 @@ impl Solution {
         }
         true
     }
-    pub fn height_2(root: &Option<Rc<RefCell<TreeNode>>>, height: usize) -> usize{
+    pub fn height_2(root: &Option<Rc<RefCell<TreeNode>>>, height: usize) -> usize {
         match root {
             Some(root_of_tree) => {
                 let left = &root_of_tree.borrow().left;
@@ -274,28 +274,207 @@ impl Solution {
     }
 
     pub fn is_balanced(root: Option<Rc<RefCell<TreeNode>>>) -> bool {
-      Solution::height_and_balance(&root, 0).is_balanced
+        Solution::height_and_balance(&root, 0).is_balanced
     }
-    pub fn height_and_balance(root: &Option<Rc<RefCell<TreeNode>>>, height: usize) -> HeightAndBalance{
+    pub fn height_and_balance(
+        root: &Option<Rc<RefCell<TreeNode>>>,
+        height: usize,
+    ) -> HeightAndBalance {
         match root {
             Some(root_of_tree) => {
                 let left = Solution::height_and_balance(&root_of_tree.borrow().left, height + 1);
-                let right=Solution::height_and_balance(&root_of_tree.borrow().right, height + 1);
+                if !left.is_balanced {
+                    return HeightAndBalance {
+                        is_balanced: left.is_balanced,
+                        height: left.height,
+                    };
+                }
+                let right = Solution::height_and_balance(&root_of_tree.borrow().right, height + 1);
+                if !right.is_balanced {
+                    return HeightAndBalance {
+                        is_balanced: right.is_balanced,
+                        height: right.height,
+                    };
+                }
                 let difference = (left.height as i32 - right.height as i32).abs();
-                let is_balanced=left.is_balanced && right.is_balanced && difference<=1;
-                let tree_height=max(left.height,right.height);
-                HeightAndBalance{
-                  is_balanced,
-                  height:tree_height
+                let is_balanced = left.is_balanced && right.is_balanced && difference <= 1;
+                let tree_height = max(left.height, right.height);
+                HeightAndBalance {
+                    is_balanced,
+                    height: tree_height,
                 }
             }
-            None => HeightAndBalance { height, is_balanced:true },
+            None => HeightAndBalance {
+                height,
+                is_balanced: true,
+            },
         }
     }
 }
 
+struct HeightAndBalance {
+    height: usize,
+    is_balanced: bool,
+}
 
-struct HeightAndBalance{
-  height:usize,
-  is_balanced:bool
+impl Solution {
+    pub fn climb_stairs(n: i32) -> i32 {
+        let my_vec = vec![1; n as usize];
+        let steps = Solution::find_steps(my_vec, n as usize);
+        steps as i32
+    }
+    pub fn find_steps(nums: Vec<i32>, steps: usize) -> usize {
+        println!("nums is {:?}", nums);
+        if nums.len() == 1 {
+            return steps;
+        }
+        let mut steps = steps;
+        let mut pointer1 = 0;
+        let mut pointer2 = 1;
+        println!("steps is {}", steps);
+        while pointer2 < nums.len() {
+            if nums[pointer1] == 1 && nums[pointer2] == 1 {
+                let mut my_vec = vec![1; nums.len() - 1];
+                my_vec[pointer1] = 2;
+                println!("my vec is {:?}", my_vec);
+                let calculated_steps = Solution::find_steps(my_vec, steps + 1);
+                steps += calculated_steps;
+            }
+            pointer1 += 1;
+            pointer2 += 1;
+        }
+        steps
+    }
+}
+
+use std::collections::HashMap;
+use std::usize;
+impl Solution {
+    pub fn longest_palindrome(s: String) -> i32 {
+        let mut letter_count = HashMap::new();
+        for letter in s.chars() {
+            let count = letter_count.entry(letter).or_insert(0);
+            *count += 1;
+        }
+        let mut pivots = 0;
+        let mut total_length = 0;
+        for (_, value) in letter_count {
+            if value % 2 == 0 {
+                total_length += value;
+            } else {
+                if pivots == 0 {
+                    pivots += 1;
+                }
+                total_length += value - 1;
+            }
+        }
+        total_length + pivots
+    }
+}
+
+impl Solution {
+    pub fn reverse_list(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
+        Solution::traverse(None, head)
+    }
+    pub fn traverse(
+        previous: Option<Box<ListNode>>,
+        current: Option<Box<ListNode>>,
+    ) -> Option<Box<ListNode>> {
+        match current {
+            Some(mut current_node) => {
+                let next = current_node.next.take();
+                current_node.next = previous;
+                Solution::traverse(Some(current_node), next)
+            }
+            None => previous,
+        }
+    }
+    pub fn reverse_list_iterative(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
+        let mut current_node = head;
+        let mut previous = None;
+        while let Some(mut node) = current_node {
+            let next = node.next.take();
+            node.next = previous.take();
+            previous = Some(node);
+            current_node = next;
+        }
+        previous
+    }
+}
+
+impl Solution {
+    pub fn add_binary(a: String, b: String) -> String {
+        let mut a_rev=a.chars().rev();
+        let mut b_rev=b.chars().rev();
+        let a_len = a.len();
+        let b_len = b.len();
+        
+        let mut carry=0;
+        let mut result=String::new();
+
+
+        for _ in 0..max(a_len, b_len) {
+          let x=match a_rev.next(){
+            Some(val) => val.to_digit(10).unwrap(),
+            None => 0,
+          };
+          let y=match b_rev.next(){
+            Some(val) => val.to_digit(10).unwrap(),
+            None => 0,
+          };
+          
+          let sum=x+y+carry;
+          if sum==3{
+            carry=1;
+            result.push('1');
+
+          }else if sum==2{
+            carry=1;
+            result.push('0');
+
+          }
+          else if sum==1{
+            carry=0;
+            result.push('1');
+            
+          }else{
+            carry=0;
+            result.push('0');
+
+          }
+          
+        }
+        if carry==1{
+          result.push('1');
+        }
+        let result:String=result.chars().rev().collect();
+        result
+    }
+}
+
+
+impl Solution {
+    pub fn diameter_of_binary_tree(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+      let mut highest=0;
+      Solution::diameter(&root, &mut highest);
+      highest as i32
+
+        
+    }
+    pub fn diameter(root: &Option<Rc<RefCell<TreeNode>>>,highest:&mut usize) -> usize {
+        match root {
+            Some(root_of_tree) => {
+                let left = &root_of_tree.borrow().left;
+                let right = &root_of_tree.borrow().right;
+                let left_height=Solution::diameter(left,highest);
+                let right_height=Solution::diameter(right,highest);
+                *highest=max(*highest,left_height+right_height);
+                1+max(
+                    
+                    left_height,right_height
+                )
+            }
+            None => 0,
+        }
+    }
 }
