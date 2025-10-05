@@ -1,4 +1,124 @@
-fn main() {}
+use central_tendencies::heap::GeneralHeap;
+
+fn main() {
+    // Test 1: Basic integer heap with identity function
+    let mut heap = GeneralHeap::new(vec![7, 2, 5, 8, 1, 0], |x| *x);
+    assert_eq!(heap.get_sorted_list(), vec![0, 1, 2, 5, 7, 8]);
+
+    // Test 2: Reverse order (max heap behavior)
+    let mut heap = GeneralHeap::new(vec![1, 3, 2, 5, 4], |x| std::cmp::Reverse(*x));
+    assert_eq!(heap.get_sorted_list(), vec![5, 4, 3, 2, 1]);
+
+    // Test 3: String heap by length
+    let mut heap = GeneralHeap::new(
+        vec!["hello", "hi", "world", "a", "test"],
+        |s| s.len()
+    );
+    assert_eq!(heap.get_sorted_list(), vec!["a", "hi", "test", "world", "hello"]);
+
+    // Test 4: String heap alphabetically
+    let mut heap = GeneralHeap::new(
+        vec!["zebra", "apple", "banana", "cherry"],
+        |s| s.to_string()
+    );
+    assert_eq!(heap.get_sorted_list(), vec!["apple", "banana", "cherry", "zebra"]);
+
+    // Test 5: Custom struct - Person by age
+    #[derive(Debug, PartialEq, Clone)]
+    struct Person {
+        name: String,
+        age: u32,
+    }
+    
+    let people = vec![
+        Person { name: "Alice".to_string(), age: 25 },
+        Person { name: "Bob".to_string(), age: 20 },
+        Person { name: "Charlie".to_string(), age: 30 },
+        Person { name: "Diana".to_string(), age: 22 },
+    ];
+    
+    let mut heap = GeneralHeap::new(people.clone(), |p| p.age);
+    let expected = vec![
+        Person { name: "Bob".to_string(), age: 20 },
+        Person { name: "Diana".to_string(), age: 22 },
+        Person { name: "Alice".to_string(), age: 25 },
+        Person { name: "Charlie".to_string(), age: 30 },
+    ];
+    assert_eq!(heap.get_sorted_list(), expected);
+
+    // Test 6: Tuples by second element
+    let mut heap = GeneralHeap::new(
+        vec![(5, 10), (3, 20), (8, 5), (1, 15)],
+        |tuple| tuple.1
+    );
+    assert_eq!(heap.get_sorted_list(), vec![(8, 5), (5, 10), (1, 15), (3, 20)]);
+
+    // Test 7: Negative numbers by absolute value
+    let mut heap = GeneralHeap::new(
+        vec![-5i32, 3, -1, 8, -10, 2],
+        |x| x.abs()
+    );
+    assert_eq!(heap.get_sorted_list(), vec![-1, 2, 3, -5, 8, -10]);
+
+    // Test 8: Vectors by sum
+    let mut heap = GeneralHeap::new(
+        vec![vec![1, 2], vec![5], vec![3, 1], vec![2, 2, 2]],
+        |v| v.iter().sum::<i32>()
+    );
+    assert_eq!(heap.get_sorted_list(), vec![vec![1, 2], vec![3, 1], vec![5], vec![2, 2, 2]]);
+
+    // Test 9: Single element
+    let mut heap = GeneralHeap::new(vec![42], |x| *x);
+    assert_eq!(heap.get_sorted_list(), vec![42]);
+
+    // Test 10: All same key values
+    let mut heap = GeneralHeap::new(
+        vec!["cat", "dog", "rat", "bat"],
+        |s| s.len()  // All have length 3
+    );
+    let result = heap.get_sorted_list();
+    assert_eq!(result.len(), 4);
+    // Order may vary for equal keys, just check all elements are present
+    assert!(result.contains(&"cat"));
+    assert!(result.contains(&"dog"));
+    assert!(result.contains(&"rat"));
+    assert!(result.contains(&"bat"));
+
+    // Test 11: Complex key function - distance from origin
+    #[derive(Debug, PartialEq, Clone)]
+    struct Point {
+        x: f64,
+        y: f64,
+    }
+    
+    let points = vec![
+        Point { x: 3.0, y: 4.0 },  // distance = 5.0
+        Point { x: 0.0, y: 1.0 },  // distance = 1.0
+        Point { x: 1.0, y: 1.0 },  // distance = √2 ≈ 1.414
+        Point { x: 5.0, y: 0.0 },  // distance = 5.0
+    ];
+    
+    let mut heap = GeneralHeap::new(points.clone(), |p| {
+        ((p.x * p.x + p.y * p.y) * 1000.0) as i32  // Multiply by 1000 to avoid floating point
+    });
+    
+    let result = heap.get_sorted_list();
+    assert_eq!(result[0], Point { x: 0.0, y: 1.0 });  // Closest to origin
+    assert_eq!(result[1], Point { x: 1.0, y: 1.0 });  // Second closest
+
+    // Test 12: Empty heap edge case
+    let mut heap: GeneralHeap<i32, _> = GeneralHeap::new(vec![], |x| *x);
+    assert_eq!(heap.get_sorted_list(), Vec::<i32>::new());
+
+    println!("All GeneralHeap tests passed! ✅");
+
+    let mut heap=Heap::new(vec![7,3,5,8,1,0]);
+    heap.update_with_index(0, 9);
+    heap.update_with_index(4, 0);
+    heap.update(7, -1);
+    heap.update(-1, 10);
+
+}
 
 //Definition for singly-linked list.
 #[derive(PartialEq, Eq, Clone, Debug)]
@@ -73,8 +193,8 @@ impl TreeNode {
     }
 }
 use std::cell::RefCell;
-use std::cmp::max;
-use std::collections::VecDeque;
+use std::cmp::{max, min};
+use std::collections::{HashSet, VecDeque};
 use std::rc::Rc;
 impl Solution {
     pub fn invert_tree(root: Option<Rc<RefCell<TreeNode>>>) -> Option<Rc<RefCell<TreeNode>>> {
@@ -348,7 +468,9 @@ impl Solution {
 }
 
 use std::collections::HashMap;
-use std::usize;
+use std::{i32, usize};
+
+use central_tendencies::heap::Heap;
 impl Solution {
     pub fn longest_palindrome(s: String) -> i32 {
         let mut letter_count = HashMap::new();
@@ -404,77 +526,254 @@ impl Solution {
 
 impl Solution {
     pub fn add_binary(a: String, b: String) -> String {
-        let mut a_rev=a.chars().rev();
-        let mut b_rev=b.chars().rev();
+        let mut a_rev = a.chars().rev();
+        let mut b_rev = b.chars().rev();
         let a_len = a.len();
         let b_len = b.len();
-        
-        let mut carry=0;
-        let mut result=String::new();
 
+        let mut carry = 0;
+        let mut result = String::new();
 
         for _ in 0..max(a_len, b_len) {
-          let x=match a_rev.next(){
-            Some(val) => val.to_digit(10).unwrap(),
-            None => 0,
-          };
-          let y=match b_rev.next(){
-            Some(val) => val.to_digit(10).unwrap(),
-            None => 0,
-          };
-          
-          let sum=x+y+carry;
-          if sum==3{
-            carry=1;
-            result.push('1');
+            let x = match a_rev.next() {
+                Some(val) => val.to_digit(10).unwrap(),
+                None => 0,
+            };
+            let y = match b_rev.next() {
+                Some(val) => val.to_digit(10).unwrap(),
+                None => 0,
+            };
 
-          }else if sum==2{
-            carry=1;
-            result.push('0');
-
-          }
-          else if sum==1{
-            carry=0;
-            result.push('1');
-            
-          }else{
-            carry=0;
-            result.push('0');
-
-          }
-          
+            let sum = x + y + carry;
+            if sum == 3 {
+                carry = 1;
+                result.push('1');
+            } else if sum == 2 {
+                carry = 1;
+                result.push('0');
+            } else if sum == 1 {
+                carry = 0;
+                result.push('1');
+            } else {
+                carry = 0;
+                result.push('0');
+            }
         }
-        if carry==1{
-          result.push('1');
+        if carry == 1 {
+            result.push('1');
         }
-        let result:String=result.chars().rev().collect();
+        let result: String = result.chars().rev().collect();
         result
     }
 }
 
-
 impl Solution {
     pub fn diameter_of_binary_tree(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
-      let mut highest=0;
-      Solution::diameter(&root, &mut highest);
-      highest as i32
-
-        
+        let mut highest = 0;
+        Solution::diameter(&root, &mut highest);
+        highest as i32
     }
-    pub fn diameter(root: &Option<Rc<RefCell<TreeNode>>>,highest:&mut usize) -> usize {
+    pub fn diameter(root: &Option<Rc<RefCell<TreeNode>>>, highest: &mut usize) -> usize {
         match root {
             Some(root_of_tree) => {
                 let left = &root_of_tree.borrow().left;
                 let right = &root_of_tree.borrow().right;
-                let left_height=Solution::diameter(left,highest);
-                let right_height=Solution::diameter(right,highest);
-                *highest=max(*highest,left_height+right_height);
-                1+max(
-                    
-                    left_height,right_height
-                )
+                let left_height = Solution::diameter(left, highest);
+                let right_height = Solution::diameter(right, highest);
+                *highest = max(*highest, left_height + right_height);
+                1 + max(left_height, right_height)
             }
             None => 0,
         }
     }
 }
+
+impl Solution {
+    pub fn middle_node(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
+        // let head=head;
+        let mut current = &head;
+        let mut count = 0;
+        while let Some(node) = current {
+            count += 1;
+            current = &node.next;
+        }
+        let mut current = head;
+        if count % 2 == 0 {
+            count = (count / 2) + 1;
+        } else {
+            count /= 2;
+        }
+        for _ in 0..count {
+            if let Some(node) = current {
+                current = node.next;
+            }
+        }
+
+        current
+    }
+}
+
+impl Solution {
+    pub fn contains_duplicate(nums: Vec<i32>) -> bool {
+        let mut visited = HashSet::with_capacity(nums.len());
+        for num in nums {
+            let is_inserted = visited.insert(num);
+            if !is_inserted {
+                return true;
+            }
+        }
+        false
+    }
+}
+
+impl Solution {
+    pub fn max_sub_array(nums: Vec<i32>) -> i32 {
+        let mut largest_sum = nums[0];
+        let mut sum = 0;
+        for num in nums {
+            sum += num;
+            if num > sum {
+                sum = num;
+            }
+            largest_sum = max(largest_sum, sum);
+        }
+        largest_sum
+    }
+}
+
+impl Solution {
+    pub fn insert(intervals: Vec<Vec<i32>>, new_interval: Vec<i32>) -> Vec<Vec<i32>> {
+        // let mut new_intervals=Vec::with_capacity(intervals.len()*2);
+        let mut new_interval = new_interval;
+        let mut final_intervals = Vec::new();
+        for i in 0..intervals.len() {
+            if new_interval[1] < intervals[i][0] {
+                final_intervals.push(new_interval);
+                final_intervals.extend_from_slice(&intervals[i..]);
+                return final_intervals;
+            }
+            if new_interval[0] > intervals[i][1] {
+                final_intervals.push(intervals[i].clone());
+            } else {
+                new_interval[0] = min(new_interval[0], intervals[i][0]);
+                new_interval[1] = min(new_interval[1], intervals[i][1]);
+            }
+        }
+        final_intervals.push(new_interval);
+        final_intervals
+    }
+}
+
+impl Solution {
+    pub fn update_matrix(mat: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
+        let mut mat=mat;
+        let rows = mat.len();
+        let columns = mat[0].len();
+        let mut traversal_list=VecDeque::new();
+
+        for i in 0..rows {
+            for j in 0..columns {
+                if mat[i][j] == 0 {
+                    traversal_list.push_back((i,j));
+                }else{
+                    mat[i][j]=i32::MAX;
+                }
+            }
+        }
+        let directions=[(0,1),(0,-1),(1,0),(-1,0)];
+        while let Some((current_row_index,current_column_index))=traversal_list.pop_front(){
+            for (row_change,column_change) in directions{
+                let neighbour_row_index=current_row_index as i32 + row_change;
+                if neighbour_row_index<0 || neighbour_row_index>=rows as i32{
+                    continue;
+                }
+                let neighbour_column_index=current_column_index  as i32 + column_change;
+                if neighbour_column_index<0 || neighbour_column_index>=columns as i32{
+                    continue;
+                }
+                let neighbour_row_index=neighbour_row_index as usize;
+                let neighbour_column_index = neighbour_column_index as usize;
+                if mat[current_row_index][current_column_index]+1<mat[neighbour_row_index][neighbour_column_index]{
+                    mat[neighbour_row_index][neighbour_column_index]=mat[current_row_index][current_column_index]+1;
+                    traversal_list.push_back((neighbour_row_index,neighbour_column_index));
+                }
+            }
+        }
+
+        mat
+    }
+    fn find_neighbours(
+        rows: usize,
+        columns: usize,
+        row_index: usize,
+        column_index: usize,
+    ) ->Vec<(usize,usize)> {
+        let mut neighbours=Vec::new();
+        let column_index_plus_1 = column_index + 1;
+        if column_index_plus_1 < columns {
+            neighbours.push((row_index, column_index_plus_1));
+        }
+        if let Some(column_index_minus_1) = column_index.checked_sub(1) {
+            neighbours.push((row_index, column_index_minus_1));
+        }
+        let row_index_plus_1 = row_index + 1;
+        if row_index_plus_1 < rows {
+            neighbours.push((row_index_plus_1, column_index));
+        }
+        if let Some(row_index_minus_1) = row_index.checked_sub(1) {
+            neighbours.push((row_index_minus_1, column_index));
+        }
+        neighbours
+    }
+    
+}
+
+
+impl Solution {
+    pub fn k_closest(points: Vec<Vec<i32>>, k: i32) -> Vec<Vec<i32>> {
+        let mut points_data_list=Vec::new();
+        for point in points{
+            let distance=point[0].pow(2)+point[1].pow(2);
+            points_data_list.push(PointData{
+                coordinates:point,distance
+            });   
+        }
+        let mut points_heap=GeneralHeap::new(points_data_list, |a| a.distance);
+        let mut final_results=Vec::new();
+        for _  in 0..k{
+            match points_heap.extract_min(){
+                Some(val) => final_results.push(val.coordinates),
+                None => break,
+            }
+
+        }
+        final_results
+        
+    }
+    pub fn k_closest_std_sort(points: Vec<Vec<i32>>, k: i32) -> Vec<Vec<i32>> {
+        let mut points_data_list=Vec::new();
+        for (index,point) in points.iter().enumerate(){
+            let distance=point[0].pow(2)+point[1].pow(2);
+            points_data_list.push(PointData_2{
+                index,distance
+            });   
+        }
+        points_data_list.sort_by_key(|a|a.distance);
+        points_data_list
+        .into_iter()
+        .take(k as usize)
+        .map(|point_data| points[point_data.index].clone())
+        .collect()
+        
+    }
+}
+
+struct PointData{
+    coordinates:Vec<i32>,
+    distance:i32
+}
+struct PointData_2{
+    index:usize,
+    distance:i32
+}
+
