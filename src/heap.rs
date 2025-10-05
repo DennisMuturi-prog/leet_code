@@ -64,10 +64,10 @@ impl Heap {
         }
     }
     fn heapify(&mut self) {
-        if self.list.is_empty() {
+        if self.list.len() <=1{
             return;
         }
-        let mut i = self.list.len() - 1;
+        let mut i = self.list.len()/2 - 1;
         loop {
             self.sift_down(i);
             i = match i.checked_sub(1) {
@@ -75,6 +75,11 @@ impl Heap {
                 None => return,
             };
         }
+    }
+    pub fn insert(&mut self,item:i32){
+        self.list.push(item);
+        self.sift_up(self.list.len()-1);
+        println!("heap is {:?}",self.list);
     }
     fn extract_min(&mut self) -> Option<i32> {
         if self.list.is_empty() {
@@ -200,10 +205,10 @@ where
         }
     }
     fn heapify(&mut self) {
-        if self.list.is_empty() {
+        if self.list.len() <=1{
             return;
         }
-        let mut i = self.list.len() - 1;
+        let mut i = self.list.len()/2 - 1;
         loop {
             self.sift_down(i);
             i = match i.checked_sub(1) {
@@ -221,6 +226,10 @@ where
         let min=self.list.pop();
         self.sift_down(0);
         min
+    }
+    pub fn insert(&mut self,item:T){
+        self.list.push(item);
+        self.sift_up(self.list.len()-1);
     }
     pub fn update(&mut self, old_value: T, new_value: T)->Option<()> {
         let mut pos=0;

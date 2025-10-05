@@ -117,6 +117,9 @@ fn main() {
     heap.update_with_index(4, 0);
     heap.update(7, -1);
     heap.update(-1, 10);
+    heap.insert(-2);
+    heap.insert(-1);
+
 
 }
 
