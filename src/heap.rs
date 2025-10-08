@@ -79,7 +79,6 @@ impl Heap {
     pub fn insert(&mut self,item:i32){
         self.list.push(item);
         self.sift_up(self.list.len()-1);
-        println!("heap is {:?}",self.list);
     }
     fn extract_min(&mut self) -> Option<i32> {
         if self.list.is_empty() {
@@ -120,7 +119,6 @@ impl Heap {
         }else{
             return;
         }
-        println!("heap is {:?}",self.list);
 
     }
     pub fn get_sorted_list(&mut self) -> Vec<i32> {
