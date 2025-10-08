@@ -1,5 +1,5 @@
 use core::f32;
-use std::collections::{HashMap};
+use std::{collections::HashMap};
 
 use crate::heap::GeneralHeap;
 
@@ -23,6 +23,34 @@ impl Graph {
             adjacency_list,
             nodes_paths_and_costs
         }
+    }
+    pub fn build(adjacency_matrix:Vec<Vec<f32>>)->Result<Self,&'static str>{
+        if adjacency_matrix.is_empty(){
+            return Err("adjacency matrix is empty");
+        }
+        let rows=adjacency_matrix.len();
+        let columns=adjacency_matrix[0].len();
+        if rows !=columns{
+            return Err("rows is not equal to columns ,must be a square matrix");
+
+        }
+        let mut adjacency_list=HashMap::<i32,Vec<Neighbour>>::new();
+        for (index,row) in adjacency_matrix.iter().enumerate(){
+            for (inner_index,edge_weight) in row.iter().enumerate(){
+                if *edge_weight!=0.0{
+                    let neighbours=adjacency_list.entry(index as i32).or_default();
+                    neighbours.push(Neighbour{
+                        node_key:inner_index as i32,
+                        node_edge_weight:*edge_weight
+
+                    });
+
+                }
+
+            }
+
+        }
+        Ok(Graph::new(adjacency_list))
     }
     fn reset_costs_and_paths(&mut self,start_node:i32){
         for (key,value) in self.nodes_paths_and_costs.iter_mut(){
@@ -94,7 +122,7 @@ pub struct  ShortestPathStats{
     pub cost:f32
 }
 
-pub struct TraversalNode {
+struct TraversalNode {
     pub node_key: i32,
     pub cost: f32,
 }
