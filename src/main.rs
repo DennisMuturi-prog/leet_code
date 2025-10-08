@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use central_tendencies::graph::{Graph, Neighbour};
+use central_tendencies::graph::{Graph,Neighbour};
 
 
 fn main() {
@@ -194,7 +194,24 @@ fn main() {
     ]);
 
     let mut graph = Graph::new(adjacency_list);
-    let result = graph.shortest_path(5, 4);
+    let result = graph.shortest_path(0, 8);
+    println!("result is {:?}", result);
+
+    let adjacency_matrix = vec![
+        vec![0.0, 0.0, 2.4, 2.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        vec![0.0, 0.0, 0.0, 2.2, 2.5, 0.0, 0.0, 0.0, 0.0, 0.0],
+        vec![2.4, 0.0, 0.0, 0.0, 0.0, 2.0, 2.8, 0.0, 0.0, 0.0],
+        vec![2.2, 2.2, 0.0, 0.0, 0.0, 3.4, 2.6, 3.1, 0.0, 0.0],
+        vec![0.0, 2.5, 0.0, 0.0, 0.0, 0.0, 2.9, 2.1, 0.0, 0.0],
+        vec![0.0, 0.0, 2.0, 3.4, 0.0, 0.0, 0.0, 0.0, 2.8, 4.0],
+        vec![0.0, 0.0, 2.8, 2.6, 2.9, 0.0, 0.0, 0.0, 2.8, 2.4],
+        vec![0.0, 0.0, 0.0, 3.1, 2.1, 0.0, 0.0, 0.0, 4.4, 2.6],
+        vec![0.0, 0.0, 0.0, 0.0, 0.0, 2.8, 2.8, 4.4, 0.0, 0.0],
+        vec![0.0, 0.0, 0.0, 0.0, 0.0, 4.0, 2.4, 2.6, 0.0, 0.0],
+    ];
+
+    let mut graph = Graph::build(adjacency_matrix).unwrap();
+    let result = graph.shortest_path(0, 8);
     println!("result is {:?}", result);
 }
 //Definition for singly-linked list.
