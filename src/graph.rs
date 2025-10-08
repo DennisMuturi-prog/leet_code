@@ -1,19 +1,20 @@
 use core::f32;
-use std::{collections::HashMap};
+use std::{collections::HashMap, error::Error, fmt::Display, hash::Hash};
 
 use crate::heap::GeneralHeap;
 
 // #[derive(Default)]
-pub struct Graph {
-    adjacency_list: HashMap<i32, Vec<Neighbour>>,
-    nodes_paths_and_costs:HashMap<i32,NodePathCost>
+pub struct Graph <T>{
+    adjacency_list: HashMap<T, Vec<Neighbour<T>>>,
+    nodes_paths_and_costs:HashMap<T,NodePathCost<T>>
 }
 
-impl Graph {
-    pub fn new(adjacency_list: HashMap<i32, Vec<Neighbour>>) -> Self {
+impl<T> Graph<T>
+where T:Eq+Hash+Clone {
+    pub fn new(adjacency_list: HashMap<T, Vec<Neighbour<T>>>) -> Self {
         let mut nodes_paths_and_costs=HashMap::new();
         for key in adjacency_list.keys(){
-            nodes_paths_and_costs.insert(*key, NodePathCost{
+            nodes_paths_and_costs.insert(key.clone(), NodePathCost{
                 previous:None,
                 cost:f32::INFINITY
             });
@@ -24,35 +25,7 @@ impl Graph {
             nodes_paths_and_costs
         }
     }
-    pub fn build(adjacency_matrix:Vec<Vec<f32>>)->Result<Self,&'static str>{
-        if adjacency_matrix.is_empty(){
-            return Err("adjacency matrix is empty");
-        }
-        let rows=adjacency_matrix.len();
-        let columns=adjacency_matrix[0].len();
-        if rows !=columns{
-            return Err("rows is not equal to columns ,must be a square matrix");
-
-        }
-        let mut adjacency_list=HashMap::<i32,Vec<Neighbour>>::new();
-        for (index,row) in adjacency_matrix.iter().enumerate(){
-            for (inner_index,edge_weight) in row.iter().enumerate(){
-                if *edge_weight!=0.0{
-                    let neighbours=adjacency_list.entry(index as i32).or_default();
-                    neighbours.push(Neighbour{
-                        node_key:inner_index as i32,
-                        node_edge_weight:*edge_weight
-
-                    });
-
-                }
-
-            }
-
-        }
-        Ok(Graph::new(adjacency_list))
-    }
-    fn reset_costs_and_paths(&mut self,start_node:i32){
+    fn reset_costs_and_paths(&mut self,start_node:T){
         for (key,value) in self.nodes_paths_and_costs.iter_mut(){
             value.previous=None;
             if *key==start_node{
@@ -63,14 +36,13 @@ impl Graph {
             }
         }
     }
-    pub fn shortest_path(&mut self, start: i32, finish: i32) -> Option<ShortestPathStats> {
-        self.reset_costs_and_paths(start);
+    pub fn shortest_path(&mut self, start: T, finish: T) -> Option<ShortestPathStats<T>> {
+        self.reset_costs_and_paths(start.clone());
         let mut priority_queue = GeneralHeap::new(
             vec![TraversalNode {
                 node_key: start,
                 cost: 0.0,
-            }],
-            |a| a.cost,
+            }]
         );
 
         while let Some(current_node) = priority_queue.extract_min() {
@@ -84,19 +56,19 @@ impl Graph {
                 if distance < current_cost_of_neighbour {
                     if let Some(neighbour_ref) = self.nodes_paths_and_costs.get_mut(&neighbour.node_key) {
                         neighbour_ref.cost = distance;
-                        neighbour_ref.previous = Some(current_node.node_key);
-                        priority_queue.insert(TraversalNode { node_key: neighbour.node_key, cost: distance });
+                        neighbour_ref.previous = Some(current_node.node_key.clone());
+                        priority_queue.insert(TraversalNode { node_key: neighbour.node_key.clone(), cost: distance });
                     };
                 }
             }
         }
         let mut path=Vec::new();
-        path.push(finish);
-        let mut current=finish;
+        path.push(finish.clone());
+        let mut current=finish.clone();
         while let Some(current_node)=self.nodes_paths_and_costs.get(&current){
-            if let Some(previous)=current_node.previous{
-                path.push(previous);
-                current=previous;
+            if let Some(ref previous)=current_node.previous{
+                path.push(previous.clone());
+                current=previous.clone();
             }else{
                 break;
             }
@@ -107,22 +79,102 @@ impl Graph {
 }
 
 #[derive(Debug)]
-pub struct Neighbour {
-    pub node_key: i32,
-    pub node_edge_weight: f32,
+pub struct Neighbour<T> {
+    node_key: T,
+    node_edge_weight: f32,
 }
-pub struct NodePathCost{
-    pub cost: f32,
-    pub previous: Option<i32>,
+impl<T> Neighbour<T>
+where T:Eq+Hash+Clone {
+    pub fn new(node_key:T,node_edge_weight:f32)->Neighbour<T>{
+        Neighbour { node_key, node_edge_weight }
 
+    }
+}
+pub struct NodePathCost<T>{
+    cost: f32,
+    previous: Option<T>,
+
+}
+impl<T> NodePathCost<T>
+where T:Eq+Hash+Clone
+{
+    pub fn new(cost:f32,previous:Option<T>)->NodePathCost<T>{
+        NodePathCost{
+            cost,
+            previous
+        }
+    }
 }
 #[derive(Debug)]
-pub struct  ShortestPathStats{
-    pub path:Vec<i32>,
-    pub cost:f32
+pub struct  ShortestPathStats<T>{
+    path:Vec<T>,
+    cost:f32
 }
 
-struct TraversalNode {
-    pub node_key: i32,
-    pub cost: f32,
+struct TraversalNode<T> {
+    node_key: T,
+    cost: f32,
+}
+impl<T> TraversalNode<T>
+where T:Eq+Hash+Clone {
+    pub fn new(node_key:T,cost:f32)->TraversalNode<T>{
+        TraversalNode { node_key, cost } 
+
+    }
+}
+impl<T> PartialEq for TraversalNode<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.cost == other.cost
+    }
+}
+
+impl<T> PartialOrd for TraversalNode<T>{
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        
+        self.cost.partial_cmp(&other.cost)
+    }
+}
+
+#[derive(Debug)]
+pub enum BuildingGraphFromMatrixError{
+    EmptyMatrix,
+    NotSquareMatrix
+}
+impl Display for BuildingGraphFromMatrixError{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self{
+            BuildingGraphFromMatrixError::EmptyMatrix =>  write!(f, "the adjacency matrix is empty,provide a valid one!"),
+            BuildingGraphFromMatrixError::NotSquareMatrix => write!(f, "the rows and columns of the adjacency matrix must be equal"),
+        }
+    }
+}
+impl Error for BuildingGraphFromMatrixError{}
+
+impl TryFrom<Vec<Vec<f32>>> for Graph<usize>{
+    type Error=BuildingGraphFromMatrixError;
+
+    fn try_from(adjacency_matrix: Vec<Vec<f32>>) -> Result<Self, Self::Error> {
+        if adjacency_matrix.is_empty(){
+            return Err(BuildingGraphFromMatrixError::EmptyMatrix);
+        }
+        let rows=adjacency_matrix.len();
+        let columns=adjacency_matrix[0].len();
+        if rows !=columns{
+            return Err(BuildingGraphFromMatrixError::NotSquareMatrix);
+
+        }
+        let mut adjacency_list=HashMap::<usize,Vec<Neighbour<usize>>>::new();
+        for (index,row) in adjacency_matrix.iter().enumerate(){
+            for (inner_index,edge_weight) in row.iter().enumerate(){
+                if *edge_weight!=0.0{
+                    let neighbours=adjacency_list.entry(index).or_default();
+                    neighbours.push(Neighbour::new(inner_index, *edge_weight));
+
+                }
+
+            }
+
+        }
+        Ok(Graph::new(adjacency_list))
+    }
 }

@@ -130,22 +130,19 @@ impl Heap {
     }
 }
 
-pub struct GeneralHeap<T, F> {
+pub struct GeneralHeap<T> {
     list: Vec<T>,
-    key_function: F,
 }
-impl<T, F, K> GeneralHeap<T, F>
+impl<T> GeneralHeap<T>
 where
-    F: FnMut(&T) -> K,
-    K: PartialOrd,
+    T:PartialOrd
 {
-    pub fn new(list: Vec<T>, key_function: F) -> Self {
-        let mut heap = GeneralHeap { list, key_function };
+    pub fn new(list: Vec<T>) -> Self {
+        let mut heap = GeneralHeap { list};
         heap.heapify();
         heap
     }
     fn sift_up(&mut self, index: usize) {
-        let key_function=&mut self.key_function;
         if index == 0 {
             return;
         }
@@ -153,7 +150,7 @@ where
 
         while index > 0 {
             let parent = (index - 1) / 2;
-            if key_function(&self.list[index]) < key_function(&self.list[parent]) {
+            if self.list[index] < self.list[parent] {
                 self.list.swap(index, parent);
                 index = parent;
             } else {
@@ -162,7 +159,6 @@ where
         }
     }
     fn sift_down(&mut self, index: usize) {
-        let key_function=&mut self.key_function;
         let mut index = index;
         let list_len = self.list.len();
         while index < self.list.len() {
@@ -173,24 +169,24 @@ where
             }
             if right_child >= list_len
                 && left_child < list_len
-                && key_function(&self.list[index]) > key_function(&self.list[left_child])
+                && self.list[index] > self.list[left_child]
             {
                 self.list.swap(index, left_child);
                 break;
             }
             if left_child >= list_len
                 && right_child < list_len
-                && key_function(&self.list[index]) > key_function(&self.list[right_child])
+                && self.list[index] > self.list[right_child]
             {
                 self.list.swap(index, right_child);
                 break;
             }
             if left_child < list_len
                 && right_child < list_len
-                && (key_function(&self.list[index]) > key_function(&self.list[left_child])
-                    || key_function(&self.list[index]) > key_function(&self.list[right_child]))
+                && (self.list[index] > self.list[left_child]
+                    || self.list[index] > self.list[right_child])
             {
-                let child_to_swap = if key_function(&self.list[left_child]) < key_function(&self.list[right_child]) {
+                let child_to_swap = if self.list[left_child] < self.list[right_child] {
                     left_child
                 } else {
                     right_child
@@ -233,8 +229,7 @@ where
         let mut pos=0;
         let mut found=false;
         for (index,value) in self.list.iter().enumerate(){
-            let key_function=&mut self.key_function;
-            if key_function(value)==key_function(&old_value){
+            if *value==old_value{
                 pos=index;
                 found=true;
             }
@@ -246,13 +241,12 @@ where
         Some(())
     }
     pub fn update_with_index(&mut self, index: usize, new_value: T) {
-        let key_function=&mut self.key_function;
         let old_value=&self.list[index];
-        if key_function(&new_value)>key_function(old_value){
+        if new_value>*old_value{
             self.list[index]=new_value;
             self.sift_down(index);
 
-        }else if key_function(&new_value)<key_function(old_value){
+        }else if new_value<*old_value{
             self.list[index]=new_value;
             self.sift_up(index);
 
@@ -269,3 +263,6 @@ where
         sorted_list
     }
 }
+
+
+

@@ -3,198 +3,96 @@ use central_tendencies::graph::{Graph,Neighbour};
 
 
 fn main() {
-    let adjacency_list = HashMap::from([
+     let adjacency_list = HashMap::from([
         (
             0,
             vec![
-                    Neighbour {
-                        node_key: 2,
-                        node_edge_weight: 2.4,
-                    },
-                    Neighbour {
-                        node_key: 3,
-                        node_edge_weight: 2.2,
-                    },
-                ],
-            
+                Neighbour::new(2, 2.4),
+                Neighbour::new(3, 2.2),
+            ],
         ),
         (
             1,
             vec![
-                    Neighbour {
-                        node_key: 3,
-                        node_edge_weight: 2.2,
-                    },
-                    Neighbour {
-                        node_key: 4,
-                        node_edge_weight: 2.5,
-                    },
-                ]
+                Neighbour::new(3, 2.2),
+                Neighbour::new(4, 2.5),
+            ]
         ),
         (
             2,
             vec![
-                    Neighbour {
-                        node_key: 0,
-                        node_edge_weight: 2.4,
-                    },
-                    Neighbour {
-                        node_key: 5,
-                        node_edge_weight: 2.0,
-                    },
-                    Neighbour {
-                        node_key: 6,
-                        node_edge_weight: 2.8,
-                    },
-                ],
+                Neighbour::new(0, 2.4),
+                Neighbour::new(5, 2.0),
+                Neighbour::new(6, 2.8),
+            ],
         ),
         (
             3,
             vec![
-                    Neighbour {
-                        node_key: 0,
-                        node_edge_weight: 2.2,
-                    },
-                    Neighbour {
-                        node_key: 1,
-                        node_edge_weight: 2.2,
-                    },
-                    Neighbour {
-                        node_key: 7,
-                        node_edge_weight: 3.1,
-                    },
-                    Neighbour {
-                        node_key: 6,
-                        node_edge_weight: 2.6,
-                    },
-                    Neighbour {
-                        node_key: 5,
-                        node_edge_weight: 3.4,
-                    },
-                ],
+                Neighbour::new(0, 2.2),
+                Neighbour::new(1, 2.2),
+                Neighbour::new(7, 3.1),
+                Neighbour::new(6, 2.6),
+                Neighbour::new(5, 3.4),
+            ],
         ),
         (
             4,
             vec![
-                    Neighbour {
-                        node_key: 1,
-                        node_edge_weight: 2.5,
-                    },
-                    Neighbour {
-                        node_key: 7,
-                        node_edge_weight: 2.1,
-                    },
-                    Neighbour {
-                        node_key: 6,
-                        node_edge_weight: 2.9,
-                    },
-                ],
+                Neighbour::new(1, 2.5),
+                Neighbour::new(7, 2.1),
+                Neighbour::new(6, 2.9),
+            ],
         ),
         (
             5,
             vec![
-                    Neighbour {
-                        node_key: 2,
-                        node_edge_weight: 2.0,
-                    },
-                    Neighbour {
-                        node_key: 3,
-                        node_edge_weight: 3.4,
-                    },
-                    Neighbour {
-                        node_key: 8,
-                        node_edge_weight: 2.8,
-                    },
-                    Neighbour {
-                        node_key: 9,
-                        node_edge_weight: 4.0,
-                    },
-                ],
+                Neighbour::new(2, 2.0),
+                Neighbour::new(3, 3.4),
+                Neighbour::new(8, 2.8),
+                Neighbour::new(9, 4.0),
+            ],
         ),
         (
             6,
             vec![
-                    Neighbour {
-                        node_key: 3,
-                        node_edge_weight: 2.6,
-                    },
-                    Neighbour {
-                        node_key: 2,
-                        node_edge_weight: 2.8,
-                    },
-                    Neighbour {
-                        node_key: 4,
-                        node_edge_weight: 2.9,
-                    },
-                    Neighbour {
-                        node_key: 8,
-                        node_edge_weight: 2.8,
-                    },
-                    Neighbour {
-                        node_key: 9,
-                        node_edge_weight: 2.4,
-                    },
-                ],
+                Neighbour::new(3, 2.6),
+                Neighbour::new(2, 2.8),
+                Neighbour::new(4, 2.9),
+                Neighbour::new(8, 2.8),
+                Neighbour::new(9, 2.4),
+            ],
         ),
         (
             7,
             vec![
-                    Neighbour {
-                        node_key: 3,
-                        node_edge_weight: 3.1,
-                    },
-                    Neighbour {
-                        node_key: 4,
-                        node_edge_weight: 2.1,
-                    },
-                    Neighbour {
-                        node_key: 8,
-                        node_edge_weight: 4.4,
-                    },
-                    Neighbour {
-                        node_key: 9,
-                        node_edge_weight: 2.6,
-                    },
-                ],
+                Neighbour::new(3, 3.1),
+                Neighbour::new(4, 2.1),
+                Neighbour::new(8, 4.4),
+                Neighbour::new(9, 2.6),
+            ],
         ),
         (
             8,
             vec![
-                    Neighbour {
-                        node_key: 5,
-                        node_edge_weight: 2.8,
-                    },
-                    Neighbour {
-                        node_key: 6,
-                        node_edge_weight: 2.8,
-                    },
-                    Neighbour {
-                        node_key: 7,
-                        node_edge_weight: 4.4,
-                    },
-                ],
+                Neighbour::new(5, 2.8),
+                Neighbour::new(6, 2.8),
+                Neighbour::new(7, 4.4),
+            ],
         ),
         (
             9,
             vec![
-                    Neighbour {
-                        node_key: 6,
-                        node_edge_weight: 2.4,
-                    },
-                    Neighbour {
-                        node_key: 7,
-                        node_edge_weight: 2.6,
-                    },
-                    Neighbour {
-                        node_key: 5,
-                        node_edge_weight: 4.0,
-                    },
-                ],
+                Neighbour::new(6, 2.4),
+                Neighbour::new(7, 2.6),
+                Neighbour::new(5, 4.0),
+            ],
         ),
     ]);
 
+
     let mut graph = Graph::new(adjacency_list);
-    let result = graph.shortest_path(0, 8);
+    let result = graph.shortest_path(5, 4);
     println!("result is {:?}", result);
 
     let adjacency_matrix = vec![
@@ -210,7 +108,7 @@ fn main() {
         vec![0.0, 0.0, 0.0, 0.0, 0.0, 4.0, 2.4, 2.6, 0.0, 0.0],
     ];
 
-    let mut graph = Graph::build(adjacency_matrix).unwrap();
+    let mut graph = Graph::try_from(adjacency_matrix).unwrap();
     let result = graph.shortest_path(0, 8);
     println!("result is {:?}", result);
 }
@@ -835,7 +733,7 @@ impl Solution {
                 distance,
             });
         }
-        let mut points_heap = GeneralHeap::new(points_data_list, |a| a.distance);
+        let mut points_heap = GeneralHeap::new(points_data_list);
         let mut final_results = Vec::new();
         for _ in 0..k {
             match points_heap.extract_min() {
@@ -863,6 +761,17 @@ impl Solution {
 struct PointData {
     coordinates: Vec<i32>,
     distance: i32,
+}
+
+impl PartialEq for PointData{
+    fn eq(&self, other: &Self) -> bool {
+        self.distance == other.distance
+    }
+}
+impl PartialOrd for PointData{
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.distance.partial_cmp(&other.distance)
+    }
 }
 struct PointData_2 {
     index: usize,
