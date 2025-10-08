@@ -1,23 +1,31 @@
 use core::f32;
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 
 use crate::heap::GeneralHeap;
 
 // #[derive(Default)]
 pub struct Graph {
-    adjacency_list: HashMap<i32, GraphNode>,
-    calculated_traversal: HashMap<i32, (f32, Vec<i32>)>,
+    adjacency_list: HashMap<i32, Vec<Neighbour>>,
+    nodes_paths_and_costs:HashMap<i32,NodePathCost>
 }
 
 impl Graph {
-    pub fn new(adjacency_list: HashMap<i32, GraphNode>) -> Self {
+    pub fn new(adjacency_list: HashMap<i32, Vec<Neighbour>>) -> Self {
+        let mut nodes_paths_and_costs=HashMap::new();
+        for key in adjacency_list.keys(){
+            nodes_paths_and_costs.insert(*key, NodePathCost{
+                previous:None,
+                cost:f32::INFINITY
+            });
+
+        }
         Self {
             adjacency_list,
-            calculated_traversal: HashMap::new(),
+            nodes_paths_and_costs
         }
     }
     fn reset_costs_and_paths(&mut self,start_node:i32){
-        for (key,value) in self.adjacency_list.iter_mut(){
+        for (key,value) in self.nodes_paths_and_costs.iter_mut(){
             value.previous=None;
             if *key==start_node{
                 value.cost=0.0
@@ -30,7 +38,7 @@ impl Graph {
     pub fn shortest_path(&mut self, start: i32, finish: i32) -> Option<ShortestPathStats> {
         self.reset_costs_and_paths(start);
         let mut priority_queue = GeneralHeap::new(
-            vec![Traversal_Node {
+            vec![TraversalNode {
                 node_key: start,
                 cost: 0.0,
             }],
@@ -41,21 +49,15 @@ impl Graph {
             if current_node.node_key==finish{
                 break;
             }
-            let neighbours = match self.adjacency_list.get(&current_node.node_key) {
-                Some(node) => node.neighbours.to_vec(),
-                None => return None,
-            };
+            let neighbours = self.adjacency_list.get(&current_node.node_key)?;
             for neighbour in neighbours {
                 let distance = current_node.cost + neighbour.node_edge_weight;
-                let current_cost_of_neighbour=match self.adjacency_list.get(&neighbour.node_key){
-                    Some(neighbour_info) =>neighbour_info.cost ,
-                    None => return  None,
-                };
+                let current_cost_of_neighbour=self.nodes_paths_and_costs.get(&neighbour.node_key)?.cost;
                 if distance < current_cost_of_neighbour {
-                    if let Some(neighbour_ref) = self.adjacency_list.get_mut(&neighbour.node_key) {
+                    if let Some(neighbour_ref) = self.nodes_paths_and_costs.get_mut(&neighbour.node_key) {
                         neighbour_ref.cost = distance;
                         neighbour_ref.previous = Some(current_node.node_key);
-                        priority_queue.insert(Traversal_Node { node_key: neighbour.node_key, cost: distance });
+                        priority_queue.insert(TraversalNode { node_key: neighbour.node_key, cost: distance });
                     };
                 }
             }
@@ -63,7 +65,7 @@ impl Graph {
         let mut path=Vec::new();
         path.push(finish);
         let mut current=finish;
-        while let Some(current_node)=self.adjacency_list.get(&current){
+        while let Some(current_node)=self.nodes_paths_and_costs.get(&current){
             if let Some(previous)=current_node.previous{
                 path.push(previous);
                 current=previous;
@@ -71,24 +73,20 @@ impl Graph {
                 break;
             }
         }
-        let path_cost=match self.adjacency_list.get(&finish){
-            Some(node) => node.cost,
-            None => return  None,
-        };
+        let path_cost=self.nodes_paths_and_costs.get(&finish)?.cost;
         Some(ShortestPathStats { path: path.into_iter().rev().collect(), cost:path_cost})
     }
 }
 
-#[derive(Clone,Debug)]
+#[derive(Debug)]
 pub struct Neighbour {
     pub node_key: i32,
     pub node_edge_weight: f32,
 }
-#[derive(Debug)]
-pub struct GraphNode {
-    pub neighbours: Vec<Neighbour>,
+pub struct NodePathCost{
     pub cost: f32,
     pub previous: Option<i32>,
+
 }
 #[derive(Debug)]
 pub struct  ShortestPathStats{
@@ -96,7 +94,7 @@ pub struct  ShortestPathStats{
     pub cost:f32
 }
 
-pub struct Traversal_Node {
+pub struct TraversalNode {
     pub node_key: i32,
     pub cost: f32,
 }
