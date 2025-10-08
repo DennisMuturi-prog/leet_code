@@ -139,7 +139,7 @@ pub struct GeneralHeap<T, F> {
 impl<T, F, K> GeneralHeap<T, F>
 where
     F: FnMut(&T) -> K,
-    K: Ord,
+    K: PartialOrd,
 {
     pub fn new(list: Vec<T>, key_function: F) -> Self {
         let mut heap = GeneralHeap { list, key_function };
