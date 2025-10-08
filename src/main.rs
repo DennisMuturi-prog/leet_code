@@ -1,12 +1,12 @@
 use std::collections::HashMap;
-use central_tendencies::graph::{Graph, GraphNode, Neighbour};
+use central_tendencies::graph::{Graph, Neighbour};
+
 
 fn main() {
     let adjacency_list = HashMap::from([
         (
             0,
-            GraphNode {
-                neighbours: vec![
+            vec![
                     Neighbour {
                         node_key: 2,
                         node_edge_weight: 2.4,
@@ -16,14 +16,11 @@ fn main() {
                         node_edge_weight: 2.2,
                     },
                 ],
-                cost: f32::MAX,
-                previous: None,
-            },
+            
         ),
         (
             1,
-            GraphNode {
-                neighbours: vec![
+            vec![
                     Neighbour {
                         node_key: 3,
                         node_edge_weight: 2.2,
@@ -32,15 +29,11 @@ fn main() {
                         node_key: 4,
                         node_edge_weight: 2.5,
                     },
-                ],
-                cost: f32::MAX,
-                previous: None,
-            },
+                ]
         ),
         (
             2,
-            GraphNode {
-                neighbours: vec![
+            vec![
                     Neighbour {
                         node_key: 0,
                         node_edge_weight: 2.4,
@@ -54,14 +47,10 @@ fn main() {
                         node_edge_weight: 2.8,
                     },
                 ],
-                cost: f32::MAX,
-                previous: None,
-            },
         ),
         (
             3,
-            GraphNode {
-                neighbours: vec![
+            vec![
                     Neighbour {
                         node_key: 0,
                         node_edge_weight: 2.2,
@@ -83,14 +72,10 @@ fn main() {
                         node_edge_weight: 3.4,
                     },
                 ],
-                cost: f32::MAX,
-                previous: None,
-            },
         ),
         (
             4,
-            GraphNode {
-                neighbours: vec![
+            vec![
                     Neighbour {
                         node_key: 1,
                         node_edge_weight: 2.5,
@@ -104,14 +89,10 @@ fn main() {
                         node_edge_weight: 2.9,
                     },
                 ],
-                cost: f32::MAX,
-                previous: None,
-            },
         ),
         (
             5,
-            GraphNode {
-                neighbours: vec![
+            vec![
                     Neighbour {
                         node_key: 2,
                         node_edge_weight: 2.0,
@@ -129,14 +110,10 @@ fn main() {
                         node_edge_weight: 4.0,
                     },
                 ],
-                cost: f32::MAX,
-                previous: None,
-            },
         ),
         (
             6,
-            GraphNode {
-                neighbours: vec![
+            vec![
                     Neighbour {
                         node_key: 3,
                         node_edge_weight: 2.6,
@@ -158,14 +135,10 @@ fn main() {
                         node_edge_weight: 2.4,
                     },
                 ],
-                cost: f32::MAX,
-                previous: None,
-            },
         ),
         (
             7,
-            GraphNode {
-                neighbours: vec![
+            vec![
                     Neighbour {
                         node_key: 3,
                         node_edge_weight: 3.1,
@@ -183,14 +156,10 @@ fn main() {
                         node_edge_weight: 2.6,
                     },
                 ],
-                cost: f32::MAX,
-                previous: None,
-            },
         ),
         (
             8,
-            GraphNode {
-                neighbours: vec![
+            vec![
                     Neighbour {
                         node_key: 5,
                         node_edge_weight: 2.8,
@@ -204,14 +173,10 @@ fn main() {
                         node_edge_weight: 4.4,
                     },
                 ],
-                cost: f32::MAX,
-                previous: None,
-            },
         ),
         (
             9,
-            GraphNode {
-                neighbours: vec![
+            vec![
                     Neighbour {
                         node_key: 6,
                         node_edge_weight: 2.4,
@@ -225,14 +190,11 @@ fn main() {
                         node_edge_weight: 4.0,
                     },
                 ],
-                cost: f32::MAX,
-                previous: None,
-            },
         ),
     ]);
 
     let mut graph = Graph::new(adjacency_list);
-    let result = graph.shortest_path(9, 3);
+    let result = graph.shortest_path(5, 4);
     println!("result is {:?}", result);
 }
 //Definition for singly-linked list.
