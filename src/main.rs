@@ -1,128 +1,240 @@
-use central_tendencies::heap::GeneralHeap;
+use std::collections::HashMap;
+use central_tendencies::graph::{Graph, GraphNode, Neighbour};
 
 fn main() {
-    // Test 1: Basic integer heap with identity function
-    let mut heap = GeneralHeap::new(vec![7, 2, 5, 8, 1, 0], |x| *x);
-    assert_eq!(heap.get_sorted_list(), vec![0, 1, 2, 5, 7, 8]);
+    let adjacency_list = HashMap::from([
+        (
+            0,
+            GraphNode {
+                neighbours: vec![
+                    Neighbour {
+                        node_key: 2,
+                        node_edge_weight: 2.4,
+                    },
+                    Neighbour {
+                        node_key: 3,
+                        node_edge_weight: 2.2,
+                    },
+                ],
+                cost: f32::MAX,
+                previous: None,
+            },
+        ),
+        (
+            1,
+            GraphNode {
+                neighbours: vec![
+                    Neighbour {
+                        node_key: 3,
+                        node_edge_weight: 2.2,
+                    },
+                    Neighbour {
+                        node_key: 4,
+                        node_edge_weight: 2.5,
+                    },
+                ],
+                cost: f32::MAX,
+                previous: None,
+            },
+        ),
+        (
+            2,
+            GraphNode {
+                neighbours: vec![
+                    Neighbour {
+                        node_key: 0,
+                        node_edge_weight: 2.4,
+                    },
+                    Neighbour {
+                        node_key: 5,
+                        node_edge_weight: 2.0,
+                    },
+                    Neighbour {
+                        node_key: 6,
+                        node_edge_weight: 2.8,
+                    },
+                ],
+                cost: f32::MAX,
+                previous: None,
+            },
+        ),
+        (
+            3,
+            GraphNode {
+                neighbours: vec![
+                    Neighbour {
+                        node_key: 0,
+                        node_edge_weight: 2.2,
+                    },
+                    Neighbour {
+                        node_key: 1,
+                        node_edge_weight: 2.2,
+                    },
+                    Neighbour {
+                        node_key: 7,
+                        node_edge_weight: 3.1,
+                    },
+                    Neighbour {
+                        node_key: 6,
+                        node_edge_weight: 2.6,
+                    },
+                    Neighbour {
+                        node_key: 5,
+                        node_edge_weight: 3.4,
+                    },
+                ],
+                cost: f32::MAX,
+                previous: None,
+            },
+        ),
+        (
+            4,
+            GraphNode {
+                neighbours: vec![
+                    Neighbour {
+                        node_key: 1,
+                        node_edge_weight: 2.5,
+                    },
+                    Neighbour {
+                        node_key: 7,
+                        node_edge_weight: 2.1,
+                    },
+                    Neighbour {
+                        node_key: 6,
+                        node_edge_weight: 2.9,
+                    },
+                ],
+                cost: f32::MAX,
+                previous: None,
+            },
+        ),
+        (
+            5,
+            GraphNode {
+                neighbours: vec![
+                    Neighbour {
+                        node_key: 2,
+                        node_edge_weight: 2.0,
+                    },
+                    Neighbour {
+                        node_key: 3,
+                        node_edge_weight: 3.4,
+                    },
+                    Neighbour {
+                        node_key: 8,
+                        node_edge_weight: 2.8,
+                    },
+                    Neighbour {
+                        node_key: 9,
+                        node_edge_weight: 4.0,
+                    },
+                ],
+                cost: f32::MAX,
+                previous: None,
+            },
+        ),
+        (
+            6,
+            GraphNode {
+                neighbours: vec![
+                    Neighbour {
+                        node_key: 3,
+                        node_edge_weight: 2.6,
+                    },
+                    Neighbour {
+                        node_key: 2,
+                        node_edge_weight: 2.8,
+                    },
+                    Neighbour {
+                        node_key: 4,
+                        node_edge_weight: 2.9,
+                    },
+                    Neighbour {
+                        node_key: 8,
+                        node_edge_weight: 2.8,
+                    },
+                    Neighbour {
+                        node_key: 9,
+                        node_edge_weight: 2.4,
+                    },
+                ],
+                cost: f32::MAX,
+                previous: None,
+            },
+        ),
+        (
+            7,
+            GraphNode {
+                neighbours: vec![
+                    Neighbour {
+                        node_key: 3,
+                        node_edge_weight: 3.1,
+                    },
+                    Neighbour {
+                        node_key: 4,
+                        node_edge_weight: 2.1,
+                    },
+                    Neighbour {
+                        node_key: 8,
+                        node_edge_weight: 4.4,
+                    },
+                    Neighbour {
+                        node_key: 9,
+                        node_edge_weight: 2.6,
+                    },
+                ],
+                cost: f32::MAX,
+                previous: None,
+            },
+        ),
+        (
+            8,
+            GraphNode {
+                neighbours: vec![
+                    Neighbour {
+                        node_key: 5,
+                        node_edge_weight: 2.8,
+                    },
+                    Neighbour {
+                        node_key: 6,
+                        node_edge_weight: 2.8,
+                    },
+                    Neighbour {
+                        node_key: 7,
+                        node_edge_weight: 4.4,
+                    },
+                ],
+                cost: f32::MAX,
+                previous: None,
+            },
+        ),
+        (
+            9,
+            GraphNode {
+                neighbours: vec![
+                    Neighbour {
+                        node_key: 6,
+                        node_edge_weight: 2.4,
+                    },
+                    Neighbour {
+                        node_key: 7,
+                        node_edge_weight: 2.6,
+                    },
+                    Neighbour {
+                        node_key: 5,
+                        node_edge_weight: 4.0,
+                    },
+                ],
+                cost: f32::MAX,
+                previous: None,
+            },
+        ),
+    ]);
 
-    // Test 2: Reverse order (max heap behavior)
-    let mut heap = GeneralHeap::new(vec![1, 3, 2, 5, 4], |x| std::cmp::Reverse(*x));
-    assert_eq!(heap.get_sorted_list(), vec![5, 4, 3, 2, 1]);
-
-    // Test 3: String heap by length
-    let mut heap = GeneralHeap::new(
-        vec!["hello", "hi", "world", "a", "test"],
-        |s| s.len()
-    );
-    assert_eq!(heap.get_sorted_list(), vec!["a", "hi", "test", "world", "hello"]);
-
-    // Test 4: String heap alphabetically
-    let mut heap = GeneralHeap::new(
-        vec!["zebra", "apple", "banana", "cherry"],
-        |s| s.to_string()
-    );
-    assert_eq!(heap.get_sorted_list(), vec!["apple", "banana", "cherry", "zebra"]);
-
-    // Test 5: Custom struct - Person by age
-    #[derive(Debug, PartialEq, Clone)]
-    struct Person {
-        name: String,
-        age: u32,
-    }
-    
-    let people = vec![
-        Person { name: "Alice".to_string(), age: 25 },
-        Person { name: "Bob".to_string(), age: 20 },
-        Person { name: "Charlie".to_string(), age: 30 },
-        Person { name: "Diana".to_string(), age: 22 },
-    ];
-    
-    let mut heap = GeneralHeap::new(people.clone(), |p| p.age);
-    let expected = vec![
-        Person { name: "Bob".to_string(), age: 20 },
-        Person { name: "Diana".to_string(), age: 22 },
-        Person { name: "Alice".to_string(), age: 25 },
-        Person { name: "Charlie".to_string(), age: 30 },
-    ];
-    assert_eq!(heap.get_sorted_list(), expected);
-
-    // Test 6: Tuples by second element
-    let mut heap = GeneralHeap::new(
-        vec![(5, 10), (3, 20), (8, 5), (1, 15)],
-        |tuple| tuple.1
-    );
-    assert_eq!(heap.get_sorted_list(), vec![(8, 5), (5, 10), (1, 15), (3, 20)]);
-
-    // Test 7: Negative numbers by absolute value
-    let mut heap = GeneralHeap::new(
-        vec![-5i32, 3, -1, 8, -10, 2],
-        |x| x.abs()
-    );
-    assert_eq!(heap.get_sorted_list(), vec![-1, 2, 3, -5, 8, -10]);
-
-    // Test 8: Vectors by sum
-    let mut heap = GeneralHeap::new(
-        vec![vec![1, 2], vec![5], vec![3, 1], vec![2, 2, 2]],
-        |v| v.iter().sum::<i32>()
-    );
-    assert_eq!(heap.get_sorted_list(), vec![vec![1, 2], vec![3, 1], vec![5], vec![2, 2, 2]]);
-
-    // Test 9: Single element
-    let mut heap = GeneralHeap::new(vec![42], |x| *x);
-    assert_eq!(heap.get_sorted_list(), vec![42]);
-
-    // Test 10: All same key values
-    let mut heap = GeneralHeap::new(
-        vec!["cat", "dog", "rat", "bat"],
-        |s| s.len()  // All have length 3
-    );
-    let result = heap.get_sorted_list();
-    assert_eq!(result.len(), 4);
-    // Order may vary for equal keys, just check all elements are present
-    assert!(result.contains(&"cat"));
-    assert!(result.contains(&"dog"));
-    assert!(result.contains(&"rat"));
-    assert!(result.contains(&"bat"));
-
-    // Test 11: Complex key function - distance from origin
-    #[derive(Debug, PartialEq, Clone)]
-    struct Point {
-        x: f64,
-        y: f64,
-    }
-    
-    let points = vec![
-        Point { x: 3.0, y: 4.0 },  // distance = 5.0
-        Point { x: 0.0, y: 1.0 },  // distance = 1.0
-        Point { x: 1.0, y: 1.0 },  // distance = √2 ≈ 1.414
-        Point { x: 5.0, y: 0.0 },  // distance = 5.0
-    ];
-    
-    let mut heap = GeneralHeap::new(points.clone(), |p| {
-        ((p.x * p.x + p.y * p.y) * 1000.0) as i32  // Multiply by 1000 to avoid floating point
-    });
-    
-    let result = heap.get_sorted_list();
-    assert_eq!(result[0], Point { x: 0.0, y: 1.0 });  // Closest to origin
-    assert_eq!(result[1], Point { x: 1.0, y: 1.0 });  // Second closest
-
-    // Test 12: Empty heap edge case
-    let mut heap: GeneralHeap<i32, _> = GeneralHeap::new(vec![], |x| *x);
-    assert_eq!(heap.get_sorted_list(), Vec::<i32>::new());
-
-    println!("All GeneralHeap tests passed! ✅");
-
-    let mut heap=Heap::new(vec![7,3,5,8,1,0]);
-    heap.update_with_index(0, 9);
-    heap.update_with_index(4, 0);
-    heap.update(7, -1);
-    heap.update(-1, 10);
-    heap.insert(-2);
-    heap.insert(-1);
-
-
+    let mut graph = Graph::new(adjacency_list);
+    let result = graph.shortest_path(9, 3);
+    println!("result is {:?}", result);
 }
-
 //Definition for singly-linked list.
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct ListNode {
@@ -195,9 +307,11 @@ impl TreeNode {
         }
     }
 }
+use core::num;
 use std::cell::RefCell;
 use std::cmp::{max, min};
 use std::collections::{HashSet, VecDeque};
+use std::os::windows::raw::SOCKET;
 use std::rc::Rc;
 impl Solution {
     pub fn invert_tree(root: Option<Rc<RefCell<TreeNode>>>) -> Option<Rc<RefCell<TreeNode>>> {
@@ -470,10 +584,9 @@ impl Solution {
     }
 }
 
-use std::collections::HashMap;
 use std::{i32, usize};
 
-use central_tendencies::heap::Heap;
+use central_tendencies::heap::{GeneralHeap, Heap};
 impl Solution {
     pub fn longest_palindrome(s: String) -> i32 {
         let mut letter_count = HashMap::new();
@@ -669,36 +782,39 @@ impl Solution {
 
 impl Solution {
     pub fn update_matrix(mat: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
-        let mut mat=mat;
+        let mut mat = mat;
         let rows = mat.len();
         let columns = mat[0].len();
-        let mut traversal_list=VecDeque::new();
+        let mut traversal_list = VecDeque::new();
 
         for i in 0..rows {
             for j in 0..columns {
                 if mat[i][j] == 0 {
-                    traversal_list.push_back((i,j));
-                }else{
-                    mat[i][j]=i32::MAX;
+                    traversal_list.push_back((i, j));
+                } else {
+                    mat[i][j] = i32::MAX;
                 }
             }
         }
-        let directions=[(0,1),(0,-1),(1,0),(-1,0)];
-        while let Some((current_row_index,current_column_index))=traversal_list.pop_front(){
-            for (row_change,column_change) in directions{
-                let neighbour_row_index=current_row_index as i32 + row_change;
-                if neighbour_row_index<0 || neighbour_row_index>=rows as i32{
+        let directions = [(0, 1), (0, -1), (1, 0), (-1, 0)];
+        while let Some((current_row_index, current_column_index)) = traversal_list.pop_front() {
+            for (row_change, column_change) in directions {
+                let neighbour_row_index = current_row_index as i32 + row_change;
+                if neighbour_row_index < 0 || neighbour_row_index >= rows as i32 {
                     continue;
                 }
-                let neighbour_column_index=current_column_index  as i32 + column_change;
-                if neighbour_column_index<0 || neighbour_column_index>=columns as i32{
+                let neighbour_column_index = current_column_index as i32 + column_change;
+                if neighbour_column_index < 0 || neighbour_column_index >= columns as i32 {
                     continue;
                 }
-                let neighbour_row_index=neighbour_row_index as usize;
+                let neighbour_row_index = neighbour_row_index as usize;
                 let neighbour_column_index = neighbour_column_index as usize;
-                if mat[current_row_index][current_column_index]+1<mat[neighbour_row_index][neighbour_column_index]{
-                    mat[neighbour_row_index][neighbour_column_index]=mat[current_row_index][current_column_index]+1;
-                    traversal_list.push_back((neighbour_row_index,neighbour_column_index));
+                if mat[current_row_index][current_column_index] + 1
+                    < mat[neighbour_row_index][neighbour_column_index]
+                {
+                    mat[neighbour_row_index][neighbour_column_index] =
+                        mat[current_row_index][current_column_index] + 1;
+                    traversal_list.push_back((neighbour_row_index, neighbour_column_index));
                 }
             }
         }
@@ -710,8 +826,8 @@ impl Solution {
         columns: usize,
         row_index: usize,
         column_index: usize,
-    ) ->Vec<(usize,usize)> {
-        let mut neighbours=Vec::new();
+    ) -> Vec<(usize, usize)> {
+        let mut neighbours = Vec::new();
         let column_index_plus_1 = column_index + 1;
         if column_index_plus_1 < columns {
             neighbours.push((row_index, column_index_plus_1));
@@ -728,55 +844,258 @@ impl Solution {
         }
         neighbours
     }
-    
 }
-
 
 impl Solution {
     pub fn k_closest(points: Vec<Vec<i32>>, k: i32) -> Vec<Vec<i32>> {
-        let mut points_data_list=Vec::new();
-        for point in points{
-            let distance=point[0].pow(2)+point[1].pow(2);
-            points_data_list.push(PointData{
-                coordinates:point,distance
-            });   
+        let mut points_data_list = Vec::new();
+        for point in points {
+            let distance = point[0].pow(2) + point[1].pow(2);
+            points_data_list.push(PointData {
+                coordinates: point,
+                distance,
+            });
         }
-        let mut points_heap=GeneralHeap::new(points_data_list, |a| a.distance);
-        let mut final_results=Vec::new();
-        for _  in 0..k{
-            match points_heap.extract_min(){
+        let mut points_heap = GeneralHeap::new(points_data_list, |a| a.distance);
+        let mut final_results = Vec::new();
+        for _ in 0..k {
+            match points_heap.extract_min() {
                 Some(val) => final_results.push(val.coordinates),
                 None => break,
             }
-
         }
         final_results
-        
     }
     pub fn k_closest_std_sort(points: Vec<Vec<i32>>, k: i32) -> Vec<Vec<i32>> {
-        let mut points_data_list=Vec::new();
-        for (index,point) in points.iter().enumerate(){
-            let distance=point[0].pow(2)+point[1].pow(2);
-            points_data_list.push(PointData_2{
-                index,distance
-            });   
+        let mut points_data_list = Vec::new();
+        for (index, point) in points.iter().enumerate() {
+            let distance = point[0].pow(2) + point[1].pow(2);
+            points_data_list.push(PointData_2 { index, distance });
         }
-        points_data_list.sort_by_key(|a|a.distance);
+        points_data_list.sort_by_key(|a| a.distance);
         points_data_list
-        .into_iter()
-        .take(k as usize)
-        .map(|point_data| points[point_data.index].clone())
-        .collect()
-        
+            .into_iter()
+            .take(k as usize)
+            .map(|point_data| points[point_data.index].clone())
+            .collect()
     }
 }
 
-struct PointData{
-    coordinates:Vec<i32>,
-    distance:i32
+struct PointData {
+    coordinates: Vec<i32>,
+    distance: i32,
 }
-struct PointData_2{
-    index:usize,
-    distance:i32
+struct PointData_2 {
+    index: usize,
+    distance: i32,
 }
 
+impl Solution {
+    pub fn length_of_longest_substring(s: String) -> i32 {
+        let mut visited_hashmap = HashMap::new();
+        let mut count = 0;
+        let mut largest = 0;
+        let mut last_interruption = 0;
+        for (index, letter) in s.chars().enumerate() {
+            match visited_hashmap.get(&letter) {
+                Some(existing) => {
+                    let existing_index = *existing;
+                    largest = max(largest, count);
+                    if last_interruption > existing_index {
+                        count = index - last_interruption;
+                    } else {
+                        count = index - existing_index;
+                        last_interruption = existing_index;
+                    }
+                    visited_hashmap.insert(letter, index);
+                }
+                None => {
+                    visited_hashmap.insert(letter, index);
+                    count += 1;
+                }
+            }
+        }
+        largest = max(largest, count);
+        largest as i32
+    }
+}
+impl Solution {
+    pub fn three_sum_1(nums: Vec<i32>) -> Vec<Vec<i32>> {
+        let mut visited_hash_map = HashMap::new();
+        let mut final_result = Vec::new();
+        for (index, num) in nums.iter().enumerate() {
+            let hash_set_ref = visited_hash_map.entry(*num).or_insert(HashSet::new());
+            hash_set_ref.insert(index);
+        }
+        for i in 0..nums.len() - 1 {
+            let sum = nums[i] + nums[i + 1];
+            let differentiator = 0 - sum;
+            if let Some(visited_indexes) = visited_hash_map.get(&differentiator) {
+                if visited_indexes.contains(&i) || visited_indexes.contains(&(i + 1)) {
+                    continue;
+                }
+                final_result.push(vec![nums[i], nums[i + 1], differentiator])
+            }
+        }
+        final_result
+    }
+}
+
+impl Solution {
+    pub fn three_sum_2(nums: Vec<i32>) -> Vec<Vec<i32>> {
+        let mut nums = nums;
+        let mut final_results = Vec::new();
+        let nums_len = nums.len();
+        nums.sort();
+        for (index, num) in nums.iter().enumerate() {
+            let target_for_two_sum = 0 - num;
+            for inner_index in index + 1..nums_len {
+                let inner_num = nums[inner_index];
+                let complement = target_for_two_sum - inner_num;
+                if complement < inner_num {
+                    match Solution::binary_search(&nums[..inner_index], complement) {
+                        Some(complementary_index) => {
+                            if index != complementary_index {
+                                final_results.push(vec![
+                                    nums[index],
+                                    nums[inner_index],
+                                    nums[complementary_index],
+                                ]);
+                            }
+                        }
+                        None => continue,
+                    }
+                } else {
+                    match Solution::binary_search(&nums[inner_index + 1..], complement) {
+                        Some(complementary_index) => {
+                            if index != complementary_index + inner_index + 1 {
+                                final_results.push(vec![
+                                    nums[index],
+                                    nums[inner_index],
+                                    nums[complementary_index + inner_index + 1],
+                                ]);
+                            }
+                        }
+                        None => continue,
+                    }
+                }
+            }
+        }
+        final_results
+    }
+    pub fn binary_search(list: &[i32], value: i32) -> Option<usize> {
+        if list.is_empty() {
+            return None;
+        }
+        let mut low = 0;
+        let mut high = list.len() - 1;
+
+        while low <= high {
+            let mid = low + ((high - low) / 2);
+            if list[mid] == value {
+                return Some(mid);
+            }
+            if value < list[mid] {
+                if mid == 0 {
+                    break;
+                }
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+        None
+    }
+}
+
+impl Solution {
+    pub fn three_sum(nums: Vec<i32>) -> Vec<Vec<i32>> {
+        let mut nums = nums;
+        nums.sort();
+        let mut result = Vec::new();
+        for i in 0..nums.len() {
+            if nums[i] > 0 {
+                break;
+            }
+            if i > 0 && nums[i] == nums[i - 1] {
+                continue;
+            }
+            Solution::two_sum_for_3_sum(&mut result, nums[i], &nums[i + 1..]);
+        }
+
+        result
+    }
+
+    pub fn two_sum_for_3_sum(result: &mut Vec<Vec<i32>>, precursor: i32, numbers: &[i32]) {
+        if numbers.len() <= 1 {
+            return;
+        }
+        let target = 0 - precursor;
+        let mut left = 0;
+        let mut right = numbers.len() - 1;
+        while left < right {
+            let sum = numbers[left] + numbers[right];
+            if sum == target {
+                result.push(vec![precursor, numbers[left], numbers[right]]);
+                if left >= numbers.len() - 1 {
+                    break;
+                }
+                left += 1;
+                right -= 1;
+                while left < right && numbers[left] == numbers[left - 1] {
+                    left += 1;
+                }
+                while left < right && numbers[right] == numbers[right + 1] {
+                    right -= 1;
+                }
+                continue;
+            }
+            if sum > target {
+                right -= 1;
+            } else {
+                left += 1;
+            }
+        }
+    }
+
+    pub fn two_sum_ii(numbers: Vec<i32>, target: i32) -> Vec<i32> {
+        let mut left = 0;
+        let mut right = numbers.len() - 1;
+        while left <= right {
+            let sum = numbers[left] + numbers[right];
+            if sum == target {
+                return vec![(left + 1) as i32, (right + 1) as i32];
+            }
+            if sum > target {
+                right -= 1;
+            } else {
+                left += 1;
+            }
+        }
+        vec![]
+    }
+}
+
+impl Solution {
+    pub fn level_order(root: Option<Rc<RefCell<TreeNode>>>) -> Vec<Vec<i32>> {
+        let mut traversal_queue = VecDeque::new();
+        traversal_queue.push_back(root);
+        let mut result = Vec::new();
+
+        while !traversal_queue.is_empty() {
+            let mut level = Vec::new();
+            for _ in 0..traversal_queue.len() {
+                let node = traversal_queue.pop_front().unwrap();
+                if let Some(current_node) = node {
+                    level.push(current_node.borrow().val);
+                    traversal_queue.push_back(current_node.borrow_mut().left.take());
+                    traversal_queue.push_back(current_node.borrow_mut().right.take());
+                }
+            }
+            if !level.is_empty() {
+                result.push(level);
+            }
+        }
+        result
+    }
+}
