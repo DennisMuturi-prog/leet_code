@@ -25,10 +25,10 @@ where T:Eq+Hash+Clone {
             nodes_paths_and_costs
         }
     }
-    fn reset_costs_and_paths(&mut self,start_node:T){
+    fn reset_costs_and_paths(&mut self,start_node:&T){
         for (key,value) in self.nodes_paths_and_costs.iter_mut(){
             value.previous=None;
-            if *key==start_node{
+            if key==start_node{
                 value.cost=0.0
             }else{
                 value.cost=f32::INFINITY;
@@ -36,11 +36,11 @@ where T:Eq+Hash+Clone {
             }
         }
     }
-    pub fn shortest_path(&mut self, start: T, finish: T) -> Option<ShortestPathStats<T>> {
-        self.reset_costs_and_paths(start.clone());
+    pub fn shortest_path<'a>(&'a mut self, start: T, finish: &'a T) -> Option<ShortestPathStats<'a,T>> {
+        self.reset_costs_and_paths(&start);
         let mut priority_queue = GeneralHeap::new(
             vec![TraversalNode {
-                node_key: start,
+                node_key: &start,
                 cost: 0.0,
             }]
         );
@@ -49,7 +49,7 @@ where T:Eq+Hash+Clone {
             if current_node.node_key==finish{
                 break;
             }
-            let neighbours = self.adjacency_list.get(&current_node.node_key)?;
+            let neighbours = self.adjacency_list.get(current_node.node_key)?;
             for neighbour in neighbours {
                 let distance = current_node.cost + neighbour.node_edge_weight;
                 let current_cost_of_neighbour=self.nodes_paths_and_costs.get(&neighbour.node_key)?.cost;
@@ -57,23 +57,23 @@ where T:Eq+Hash+Clone {
                     if let Some(neighbour_ref) = self.nodes_paths_and_costs.get_mut(&neighbour.node_key) {
                         neighbour_ref.cost = distance;
                         neighbour_ref.previous = Some(current_node.node_key.clone());
-                        priority_queue.insert(TraversalNode { node_key: neighbour.node_key.clone(), cost: distance });
+                        priority_queue.insert(TraversalNode { node_key: &neighbour.node_key, cost: distance });
                     };
                 }
             }
         }
         let mut path=Vec::new();
-        path.push(finish.clone());
-        let mut current=finish.clone();
-        while let Some(current_node)=self.nodes_paths_and_costs.get(&current){
+        path.push(finish);
+        let mut current=finish;
+        while let Some(current_node)=self.nodes_paths_and_costs.get(current){
             if let Some(ref previous)=current_node.previous{
-                path.push(previous.clone());
-                current=previous.clone();
+                path.push(previous);
+                current=previous
             }else{
                 break;
             }
         }
-        let path_cost=self.nodes_paths_and_costs.get(&finish)?.cost;
+        let path_cost=self.nodes_paths_and_costs.get(finish)?.cost;
         Some(ShortestPathStats { path: path.into_iter().rev().collect(), cost:path_cost})
     }
 }
@@ -92,43 +92,43 @@ where T:Eq+Hash+Clone {
 }
 pub struct NodePathCost<T>{
     cost: f32,
-    previous: Option<T>,
+    previous: Option< T>,
 
 }
 impl<T> NodePathCost<T>
 where T:Eq+Hash+Clone
 {
-    pub fn new(cost:f32,previous:Option<T>)->NodePathCost<T>{
+    pub fn new(cost:f32)->NodePathCost<T>{
         NodePathCost{
             cost,
-            previous
+            previous:None
         }
     }
 }
 #[derive(Debug)]
-pub struct  ShortestPathStats<T>{
-    path:Vec<T>,
+pub struct  ShortestPathStats<'a,T>{
+    path:Vec<&'a T>,
     cost:f32
 }
 
-struct TraversalNode<T> {
-    node_key: T,
+struct TraversalNode<'a,T> {
+    node_key: &'a T,
     cost: f32,
 }
-impl<T> TraversalNode<T>
+impl<'a,T> TraversalNode<'a,T>
 where T:Eq+Hash+Clone {
-    pub fn new(node_key:T,cost:f32)->TraversalNode<T>{
+    pub fn new<'b>(node_key:&'b T,cost:f32)->TraversalNode<'b,T>{
         TraversalNode { node_key, cost } 
 
     }
 }
-impl<T> PartialEq for TraversalNode<T> {
+impl<'a,T> PartialEq for TraversalNode<'a,T> {
     fn eq(&self, other: &Self) -> bool {
         self.cost == other.cost
     }
 }
 
-impl<T> PartialOrd for TraversalNode<T>{
+impl<'a,T> PartialOrd for TraversalNode<'a,T>{
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         
         self.cost.partial_cmp(&other.cost)

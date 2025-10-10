@@ -5,94 +5,93 @@ use central_tendencies::graph::{Graph,Neighbour};
 fn main() {
      let adjacency_list = HashMap::from([
         (
-            0,
+            'A',  // Node A (was 0)
             vec![
-                Neighbour::new(2, 2.4),
-                Neighbour::new(3, 2.2),
+                Neighbour::new('C', 2.4),  // Was node 2
+                Neighbour::new('D', 2.2),  // Was node 3
             ],
         ),
         (
-            1,
+            'B',  // Node B (was 1)
             vec![
-                Neighbour::new(3, 2.2),
-                Neighbour::new(4, 2.5),
+                Neighbour::new('D', 2.2),  // Was node 3
+                Neighbour::new('E', 2.5),  // Was node 4
             ]
         ),
         (
-            2,
+            'C',  // Node C (was 2)
             vec![
-                Neighbour::new(0, 2.4),
-                Neighbour::new(5, 2.0),
-                Neighbour::new(6, 2.8),
+                Neighbour::new('A', 2.4),  // Was node 0
+                Neighbour::new('F', 2.0),  // Was node 5
+                Neighbour::new('G', 2.8),  // Was node 6
             ],
         ),
         (
-            3,
+            'D',  // Node D (was 3)
             vec![
-                Neighbour::new(0, 2.2),
-                Neighbour::new(1, 2.2),
-                Neighbour::new(7, 3.1),
-                Neighbour::new(6, 2.6),
-                Neighbour::new(5, 3.4),
+                Neighbour::new('A', 2.2),  // Was node 0
+                Neighbour::new('B', 2.2),  // Was node 1
+                Neighbour::new('H', 3.1),  // Was node 7
+                Neighbour::new('G', 2.6),  // Was node 6
+                Neighbour::new('F', 3.4),  // Was node 5
             ],
         ),
         (
-            4,
+            'E',  // Node E (was 4)
             vec![
-                Neighbour::new(1, 2.5),
-                Neighbour::new(7, 2.1),
-                Neighbour::new(6, 2.9),
+                Neighbour::new('B', 2.5),  // Was node 1
+                Neighbour::new('H', 2.1),  // Was node 7
+                Neighbour::new('G', 2.9),  // Was node 6
             ],
         ),
         (
-            5,
+            'F',  // Node F (was 5)
             vec![
-                Neighbour::new(2, 2.0),
-                Neighbour::new(3, 3.4),
-                Neighbour::new(8, 2.8),
-                Neighbour::new(9, 4.0),
+                Neighbour::new('C', 2.0),  // Was node 2
+                Neighbour::new('D', 3.4),  // Was node 3
+                Neighbour::new('I', 2.8),  // Was node 8
+                Neighbour::new('J', 4.0),  // Was node 9
             ],
         ),
         (
-            6,
+            'G',  // Node G (was 6)
             vec![
-                Neighbour::new(3, 2.6),
-                Neighbour::new(2, 2.8),
-                Neighbour::new(4, 2.9),
-                Neighbour::new(8, 2.8),
-                Neighbour::new(9, 2.4),
+                Neighbour::new('D', 2.6),  // Was node 3
+                Neighbour::new('C', 2.8),  // Was node 2
+                Neighbour::new('E', 2.9),  // Was node 4
+                Neighbour::new('I', 2.8),  // Was node 8
+                Neighbour::new('J', 2.4),  // Was node 9
             ],
         ),
         (
-            7,
+            'H',  // Node H (was 7)
             vec![
-                Neighbour::new(3, 3.1),
-                Neighbour::new(4, 2.1),
-                Neighbour::new(8, 4.4),
-                Neighbour::new(9, 2.6),
+                Neighbour::new('D', 3.1),  // Was node 3
+                Neighbour::new('E', 2.1),  // Was node 4
+                Neighbour::new('I', 4.4),  // Was node 8
+                Neighbour::new('J', 2.6),  // Was node 9
             ],
         ),
         (
-            8,
+            'I',  // Node I (was 8)
             vec![
-                Neighbour::new(5, 2.8),
-                Neighbour::new(6, 2.8),
-                Neighbour::new(7, 4.4),
+                Neighbour::new('F', 2.8),  // Was node 5
+                Neighbour::new('G', 2.8),  // Was node 6
+                Neighbour::new('H', 4.4),  // Was node 7
             ],
         ),
         (
-            9,
+            'J',  // Node J (was 9)
             vec![
-                Neighbour::new(6, 2.4),
-                Neighbour::new(7, 2.6),
-                Neighbour::new(5, 4.0),
+                Neighbour::new('G', 2.4),  // Was node 6
+                Neighbour::new('H', 2.6),  // Was node 7
+                Neighbour::new('F', 4.0),  // Was node 5
             ],
         ),
     ]);
 
-
     let mut graph = Graph::new(adjacency_list);
-    let result = graph.shortest_path(5, 4);
+    let result = graph.shortest_path('A', &'I');
     println!("result is {:?}", result);
 
     let adjacency_matrix = vec![
@@ -109,7 +108,7 @@ fn main() {
     ];
 
     let mut graph = Graph::try_from(adjacency_matrix).unwrap();
-    let result = graph.shortest_path(0, 8);
+    let result = graph.shortest_path(0, &8);
     println!("result is {:?}", result);
 }
 //Definition for singly-linked list.
