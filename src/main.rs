@@ -1,115 +1,149 @@
+use central_tendencies::graph::{Graph, Neighbour};
+use central_tendencies::tree::{Node, Tree};
 use std::collections::HashMap;
-use central_tendencies::graph::{Graph,Neighbour};
-
 
 fn main() {
-     let adjacency_list = HashMap::from([
-        (
-            'A',  // Node A (was 0)
-            vec![
-                Neighbour::new('C', 2.4),  // Was node 2
-                Neighbour::new('D', 2.2),  // Was node 3
-            ],
-        ),
-        (
-            'B',  // Node B (was 1)
-            vec![
-                Neighbour::new('D', 2.2),  // Was node 3
-                Neighbour::new('E', 2.5),  // Was node 4
-            ]
-        ),
-        (
-            'C',  // Node C (was 2)
-            vec![
-                Neighbour::new('A', 2.4),  // Was node 0
-                Neighbour::new('F', 2.0),  // Was node 5
-                Neighbour::new('G', 2.8),  // Was node 6
-            ],
-        ),
-        (
-            'D',  // Node D (was 3)
-            vec![
-                Neighbour::new('A', 2.2),  // Was node 0
-                Neighbour::new('B', 2.2),  // Was node 1
-                Neighbour::new('H', 3.1),  // Was node 7
-                Neighbour::new('G', 2.6),  // Was node 6
-                Neighbour::new('F', 3.4),  // Was node 5
-            ],
-        ),
-        (
-            'E',  // Node E (was 4)
-            vec![
-                Neighbour::new('B', 2.5),  // Was node 1
-                Neighbour::new('H', 2.1),  // Was node 7
-                Neighbour::new('G', 2.9),  // Was node 6
-            ],
-        ),
-        (
-            'F',  // Node F (was 5)
-            vec![
-                Neighbour::new('C', 2.0),  // Was node 2
-                Neighbour::new('D', 3.4),  // Was node 3
-                Neighbour::new('I', 2.8),  // Was node 8
-                Neighbour::new('J', 4.0),  // Was node 9
-            ],
-        ),
-        (
-            'G',  // Node G (was 6)
-            vec![
-                Neighbour::new('D', 2.6),  // Was node 3
-                Neighbour::new('C', 2.8),  // Was node 2
-                Neighbour::new('E', 2.9),  // Was node 4
-                Neighbour::new('I', 2.8),  // Was node 8
-                Neighbour::new('J', 2.4),  // Was node 9
-            ],
-        ),
-        (
-            'H',  // Node H (was 7)
-            vec![
-                Neighbour::new('D', 3.1),  // Was node 3
-                Neighbour::new('E', 2.1),  // Was node 4
-                Neighbour::new('I', 4.4),  // Was node 8
-                Neighbour::new('J', 2.6),  // Was node 9
-            ],
-        ),
-        (
-            'I',  // Node I (was 8)
-            vec![
-                Neighbour::new('F', 2.8),  // Was node 5
-                Neighbour::new('G', 2.8),  // Was node 6
-                Neighbour::new('H', 4.4),  // Was node 7
-            ],
-        ),
-        (
-            'J',  // Node J (was 9)
-            vec![
-                Neighbour::new('G', 2.4),  // Was node 6
-                Neighbour::new('H', 2.6),  // Was node 7
-                Neighbour::new('F', 4.0),  // Was node 5
-            ],
-        ),
-    ]);
+    // let adjacency_list = HashMap::from([
+    //     (
+    //         'A', // Node A (was 0)
+    //         vec![
+    //             Neighbour::new('C', 2.4), // Was node 2
+    //             Neighbour::new('D', 2.2), // Was node 3
+    //         ],
+    //     ),
+    //     (
+    //         'B', // Node B (was 1)
+    //         vec![
+    //             Neighbour::new('D', 2.2), // Was node 3
+    //             Neighbour::new('E', 2.5), // Was node 4
+    //         ],
+    //     ),
+    //     (
+    //         'C', // Node C (was 2)
+    //         vec![
+    //             Neighbour::new('A', 2.4), // Was node 0
+    //             Neighbour::new('F', 2.0), // Was node 5
+    //             Neighbour::new('G', 2.8), // Was node 6
+    //         ],
+    //     ),
+    //     (
+    //         'D', // Node D (was 3)
+    //         vec![
+    //             Neighbour::new('A', 2.2), // Was node 0
+    //             Neighbour::new('B', 2.2), // Was node 1
+    //             Neighbour::new('H', 3.1), // Was node 7
+    //             Neighbour::new('G', 2.6), // Was node 6
+    //             Neighbour::new('F', 3.4), // Was node 5
+    //         ],
+    //     ),
+    //     (
+    //         'E', // Node E (was 4)
+    //         vec![
+    //             Neighbour::new('B', 2.5), // Was node 1
+    //             Neighbour::new('H', 2.1), // Was node 7
+    //             Neighbour::new('G', 2.9), // Was node 6
+    //         ],
+    //     ),
+    //     (
+    //         'F', // Node F (was 5)
+    //         vec![
+    //             Neighbour::new('C', 2.0), // Was node 2
+    //             Neighbour::new('D', 3.4), // Was node 3
+    //             Neighbour::new('I', 2.8), // Was node 8
+    //             Neighbour::new('J', 4.0), // Was node 9
+    //         ],
+    //     ),
+    //     (
+    //         'G', // Node G (was 6)
+    //         vec![
+    //             Neighbour::new('D', 2.6), // Was node 3
+    //             Neighbour::new('C', 2.8), // Was node 2
+    //             Neighbour::new('E', 2.9), // Was node 4
+    //             Neighbour::new('I', 2.8), // Was node 8
+    //             Neighbour::new('J', 2.4), // Was node 9
+    //         ],
+    //     ),
+    //     (
+    //         'H', // Node H (was 7)
+    //         vec![
+    //             Neighbour::new('D', 3.1), // Was node 3
+    //             Neighbour::new('E', 2.1), // Was node 4
+    //             Neighbour::new('I', 4.4), // Was node 8
+    //             Neighbour::new('J', 2.6), // Was node 9
+    //         ],
+    //     ),
+    //     (
+    //         'I', // Node I (was 8)
+    //         vec![
+    //             Neighbour::new('F', 2.8), // Was node 5
+    //             Neighbour::new('G', 2.8), // Was node 6
+    //             Neighbour::new('H', 4.4), // Was node 7
+    //         ],
+    //     ),
+    //     (
+    //         'J', // Node J (was 9)
+    //         vec![
+    //             Neighbour::new('G', 2.4), // Was node 6
+    //             Neighbour::new('H', 2.6), // Was node 7
+    //             Neighbour::new('F', 4.0), // Was node 5
+    //         ],
+    //     ),
+    // ]);
 
-    let mut graph = Graph::new(adjacency_list);
-    let result = graph.shortest_path('A', &'I');
-    println!("result is {:?}", result);
+    // let mut graph = Graph::new(adjacency_list);
+    // let result = graph.shortest_path('A', &'I');
+    // println!("result is {:?}", result);
 
-    let adjacency_matrix = vec![
-        vec![0.0, 0.0, 2.4, 2.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        vec![0.0, 0.0, 0.0, 2.2, 2.5, 0.0, 0.0, 0.0, 0.0, 0.0],
-        vec![2.4, 0.0, 0.0, 0.0, 0.0, 2.0, 2.8, 0.0, 0.0, 0.0],
-        vec![2.2, 2.2, 0.0, 0.0, 0.0, 3.4, 2.6, 3.1, 0.0, 0.0],
-        vec![0.0, 2.5, 0.0, 0.0, 0.0, 0.0, 2.9, 2.1, 0.0, 0.0],
-        vec![0.0, 0.0, 2.0, 3.4, 0.0, 0.0, 0.0, 0.0, 2.8, 4.0],
-        vec![0.0, 0.0, 2.8, 2.6, 2.9, 0.0, 0.0, 0.0, 2.8, 2.4],
-        vec![0.0, 0.0, 0.0, 3.1, 2.1, 0.0, 0.0, 0.0, 4.4, 2.6],
-        vec![0.0, 0.0, 0.0, 0.0, 0.0, 2.8, 2.8, 4.4, 0.0, 0.0],
-        vec![0.0, 0.0, 0.0, 0.0, 0.0, 4.0, 2.4, 2.6, 0.0, 0.0],
-    ];
+    // let adjacency_matrix = vec![
+    //     vec![0.0, 0.0, 2.4, 2.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    //     vec![0.0, 0.0, 0.0, 2.2, 2.5, 0.0, 0.0, 0.0, 0.0, 0.0],
+    //     vec![2.4, 0.0, 0.0, 0.0, 0.0, 2.0, 2.8, 0.0, 0.0, 0.0],
+    //     vec![2.2, 2.2, 0.0, 0.0, 0.0, 3.4, 2.6, 3.1, 0.0, 0.0],
+    //     vec![0.0, 2.5, 0.0, 0.0, 0.0, 0.0, 2.9, 2.1, 0.0, 0.0],
+    //     vec![0.0, 0.0, 2.0, 3.4, 0.0, 0.0, 0.0, 0.0, 2.8, 4.0],
+    //     vec![0.0, 0.0, 2.8, 2.6, 2.9, 0.0, 0.0, 0.0, 2.8, 2.4],
+    //     vec![0.0, 0.0, 0.0, 3.1, 2.1, 0.0, 0.0, 0.0, 4.4, 2.6],
+    //     vec![0.0, 0.0, 0.0, 0.0, 0.0, 2.8, 2.8, 4.4, 0.0, 0.0],
+    //     vec![0.0, 0.0, 0.0, 0.0, 0.0, 4.0, 2.4, 2.6, 0.0, 0.0],
+    // ];
 
-    let mut graph = Graph::try_from(adjacency_matrix).unwrap();
-    let result = graph.shortest_path(0, &8);
-    println!("result is {:?}", result);
+    // let mut graph = Graph::try_from(adjacency_matrix).unwrap();
+    // let result = graph.shortest_path(0, &8);
+    // println!("result is {:?}", result);
+    // println!("nth fibonnaci is {}",nth_fibonnaci(93));
+    // let mut calculated_results=HashMap::new();
+    // println!("nth fibonnaci is {}",fibonnaci_recursive(93,&mut calculated_results));
+
+    // Create a sample binary tree:
+    //         10
+    //        /  \
+    //       5    15
+    //      / \   / \
+    //     3   7 12  20
+    //    /
+    //   1
+
+    // Build from bottom up
+    let node1 = Node::new(1, None, None);
+    let node3 = Node::new(3, Some(Box::new(node1)), None);
+    let node7 = Node::new(7, None, None);
+    let node5 = Node::new(5, Some(Box::new(node3)), Some(Box::new(node7)));
+
+    let node12 = Node::new(12, None, None);
+    let node20 = Node::new(20, None, None);
+    let node15 = Node::new(15, Some(Box::new(node12)), Some(Box::new(node20)));
+
+    let root = Node::new(10, Some(Box::new(node5)), Some(Box::new(node15)));
+
+    let tree = Tree::new(root);
+    let path=tree.find_path_from_root(7);
+    let all_paths=tree.all_paths_from_root_to_leaf_nodes();
+
+    println!("path is {:?}",path);
+    println!("all_paths is {:?}",all_paths);
+
+
+
 }
 //Definition for singly-linked list.
 #[derive(PartialEq, Eq, Clone, Debug)]
@@ -762,12 +796,12 @@ struct PointData {
     distance: i32,
 }
 
-impl PartialEq for PointData{
+impl PartialEq for PointData {
     fn eq(&self, other: &Self) -> bool {
         self.distance == other.distance
     }
 }
-impl PartialOrd for PointData{
+impl PartialOrd for PointData {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         self.distance.partial_cmp(&other.distance)
     }
@@ -984,5 +1018,137 @@ impl Solution {
             }
         }
         result
+    }
+}
+
+impl Solution {
+    pub fn eval_rpn(tokens: Vec<String>) -> i32 {
+        let operations = HashMap::from([
+            ("+".to_string(), true),
+            ("*".to_string(), true),
+            ("-".to_string(), true),
+            ("/".to_string(), true),
+        ]);
+        let mut operands: Vec<i32> = Vec::new();
+        for maths_op in tokens.iter() {
+            if operations.contains_key(maths_op) {
+                let second_operand: i32 = operands.pop().unwrap();
+                let first_operand: i32 = operands.pop().unwrap();
+                if maths_op == "+" {
+                    let result = first_operand + second_operand;
+                    operands.push(result);
+                } else if maths_op == "*" {
+                    let result = first_operand * second_operand;
+                    operands.push(result);
+                } else if maths_op == "-" {
+                    let result = first_operand - second_operand;
+                    operands.push(result);
+                } else {
+                    let result = first_operand / second_operand;
+
+                    operands.push(result);
+                }
+                continue;
+            }
+            operands.push(maths_op.parse::<i32>().unwrap());
+        }
+        operands[0]
+    }
+}
+
+impl Solution {
+    pub fn can_finish(num_courses: i32, prerequisites: Vec<Vec<i32>>) -> bool {
+        let mut adjacency_list: HashMap<i32, Vec<i32>> = HashMap::new();
+        for course_and_prerequisite_combination in prerequisites {
+            let course = course_and_prerequisite_combination[0];
+            let prerequisite = course_and_prerequisite_combination[1];
+            let neighbours = adjacency_list.entry(course).or_default();
+            neighbours.push(prerequisite);
+        }
+
+        for course in 0..num_courses {
+            let mut visited = HashSet::<i32>::new();
+            let mut traversal_list = Vec::new();
+            let mut ready = vec![false];
+            traversal_list.push(course);
+            while let Some(current_vertex) = traversal_list.pop() {
+                let current_vertex_ready = ready.pop().unwrap();
+                if current_vertex_ready {
+                    adjacency_list.remove(&current_vertex);
+                } else if let Some(neighbours) = adjacency_list.get(&current_vertex) {
+                    if visited.contains(&current_vertex){
+                        return false;
+                    }
+                    visited.insert(current_vertex);
+                    traversal_list.push(current_vertex);
+                    ready.push(true);
+                    for neighbour in neighbours {
+                        if adjacency_list.contains_key(neighbour) {
+                            traversal_list.push(*neighbour);
+                            ready.push(false);
+                        }
+                    }
+                }
+
+                
+            }
+        }
+
+        true
+    }
+}
+
+
+fn nth_fibonnaci(n:usize)->usize{
+    let mut results=HashMap::<usize,usize>::new();
+    results.insert(0, 0);
+    results.insert(1, 1);
+    let mut traversal_list=Vec::new();
+    let mut ready=Vec::new();
+    ready.push(false);
+    traversal_list.push(n);
+    while let Some(current) = traversal_list.pop(){
+        let is_ready=ready.pop().unwrap();
+        if results.contains_key(&current){
+            continue;
+        }
+        let number_minus_1=current-1;
+        let number_minus_2=current-2;
+        if is_ready{
+            let sum=results.get(&number_minus_1).unwrap()+results.get(&number_minus_2).unwrap();
+            results.insert(current, sum);
+        }else{
+            traversal_list.push(current);
+            ready.push(true);
+            
+            if number_minus_2>1{
+                traversal_list.push(number_minus_2);
+                ready.push(false);
+
+            }
+            if number_minus_1>1 { 
+                traversal_list.push(number_minus_1);
+                ready.push(false);
+
+            }
+        }
+    }
+    *results.get(&n).unwrap()
+}
+
+fn fibonnaci_recursive(n:usize,calculated_results:&mut HashMap<usize,usize>)->usize{
+    if n==0{
+        return 0;
+    }
+    if n==1{
+        return 1;
+    }
+    match calculated_results.get(&n){
+        Some(hit) => *hit,
+        None => {
+            let result=fibonnaci_recursive(n-1,calculated_results)+fibonnaci_recursive(n-2,calculated_results);
+            calculated_results.insert(n, result);
+            result
+        },
     }
 }
