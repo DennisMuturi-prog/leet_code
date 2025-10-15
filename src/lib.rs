@@ -250,7 +250,7 @@ mod trie_tests {
 
     #[test]
     fn test_empty_trie() {
-        let mut trie = Trie::default();
+        let trie = Trie::default();
         
         assert!(!trie.search("anything"));
         assert!(!trie.starts_with("any".to_string()));

@@ -1152,3 +1152,29 @@ fn fibonnaci_recursive(n:usize,calculated_results:&mut HashMap<usize,usize>)->us
         },
     }
 }
+
+
+impl Solution {
+    pub fn coin_change(coins: Vec<i32>, amount: i32) -> i32 {
+        let mut amount=amount;
+        let mut no_of_coins=0;
+        let mut coins=coins;
+        coins.sort_by(|a,b|b.cmp(a));
+
+        for coin in coins{
+            let denomination_coins=amount/coin;
+            if denomination_coins==0{
+                continue;
+            }
+            no_of_coins+=denomination_coins;
+            amount %= coin;
+
+        }
+        if no_of_coins==0{
+            -1
+        }else{
+            no_of_coins
+        }
+        
+    }
+}
