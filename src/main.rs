@@ -136,14 +136,11 @@ fn main() {
     let root = Node::new(10, Some(Box::new(node5)), Some(Box::new(node15)));
 
     let tree = Tree::new(root);
-    let path=tree.find_path_from_root(7);
-    let all_paths=tree.all_paths_from_root_to_leaf_nodes();
+    let path = tree.find_path_from_root(7);
+    let all_paths = tree.all_paths_from_root_to_leaf_nodes();
 
-    println!("path is {:?}",path);
-    println!("all_paths is {:?}",all_paths);
-
-
-
+    println!("path is {:?}", path);
+    println!("all_paths is {:?}", all_paths);
 }
 //Definition for singly-linked list.
 #[derive(PartialEq, Eq, Clone, Debug)]
@@ -217,7 +214,7 @@ impl TreeNode {
         }
     }
 }
-use core::num;
+use core::{f32, num};
 use std::cell::RefCell;
 use std::cmp::{max, min};
 use std::collections::{HashSet, VecDeque};
@@ -1076,7 +1073,7 @@ impl Solution {
                 if current_vertex_ready {
                     adjacency_list.remove(&current_vertex);
                 } else if let Some(neighbours) = adjacency_list.get(&current_vertex) {
-                    if visited.contains(&current_vertex){
+                    if visited.contains(&current_vertex) {
                         return false;
                     }
                     visited.insert(current_vertex);
@@ -1089,8 +1086,6 @@ impl Solution {
                         }
                     }
                 }
-
-                
             }
         }
 
@@ -1098,82 +1093,517 @@ impl Solution {
     }
 }
 
-
-fn nth_fibonnaci(n:usize)->usize{
-    let mut results=HashMap::<usize,usize>::new();
+fn nth_fibonnaci(n: usize) -> usize {
+    let mut results = HashMap::<usize, usize>::new();
     results.insert(0, 0);
     results.insert(1, 1);
-    let mut traversal_list=Vec::new();
-    let mut ready=Vec::new();
+    let mut traversal_list = Vec::new();
+    let mut ready = Vec::new();
     ready.push(false);
     traversal_list.push(n);
-    while let Some(current) = traversal_list.pop(){
-        let is_ready=ready.pop().unwrap();
-        if results.contains_key(&current){
+    while let Some(current) = traversal_list.pop() {
+        let is_ready = ready.pop().unwrap();
+        if results.contains_key(&current) {
             continue;
         }
-        let number_minus_1=current-1;
-        let number_minus_2=current-2;
-        if is_ready{
-            let sum=results.get(&number_minus_1).unwrap()+results.get(&number_minus_2).unwrap();
+        let number_minus_1 = current - 1;
+        let number_minus_2 = current - 2;
+        if is_ready {
+            let sum = results.get(&number_minus_1).unwrap() + results.get(&number_minus_2).unwrap();
             results.insert(current, sum);
-        }else{
+        } else {
             traversal_list.push(current);
             ready.push(true);
-            
-            if number_minus_2>1{
+
+            if number_minus_2 > 1 {
                 traversal_list.push(number_minus_2);
                 ready.push(false);
-
             }
-            if number_minus_1>1 { 
+            if number_minus_1 > 1 {
                 traversal_list.push(number_minus_1);
                 ready.push(false);
-
             }
         }
     }
     *results.get(&n).unwrap()
 }
 
-fn fibonnaci_recursive(n:usize,calculated_results:&mut HashMap<usize,usize>)->usize{
-    if n==0{
+fn fibonnaci_recursive(n: usize, calculated_results: &mut HashMap<usize, usize>) -> usize {
+    if n == 0 {
         return 0;
     }
-    if n==1{
+    if n == 1 {
         return 1;
     }
-    match calculated_results.get(&n){
+    match calculated_results.get(&n) {
         Some(hit) => *hit,
         None => {
-            let result=fibonnaci_recursive(n-1,calculated_results)+fibonnaci_recursive(n-2,calculated_results);
+            let result = fibonnaci_recursive(n - 1, calculated_results)
+                + fibonnaci_recursive(n - 2, calculated_results);
             calculated_results.insert(n, result);
             result
-        },
+        }
+    }
+}
+
+impl Solution {
+    pub fn coin_change(coins: Vec<i32>, amount: i32) -> i32 {
+        let mut least_coins = vec![amount + 1; (amount + 1) as usize];
+        least_coins[0] = 0;
+        for i in 1..=amount as usize {
+            let mut minimum = least_coins[i];
+            for coin in coins.iter() {
+                let sub_problem = match i.checked_sub((*coin) as usize) {
+                    Some(val) => val,
+                    None => continue,
+                };
+                minimum = min(minimum, least_coins[sub_problem]);
+            }
+            least_coins[i] = 1 + minimum;
+        }
+
+        if least_coins[(amount + 1) as usize] > amount {
+            -1
+        } else {
+            least_coins[(amount + 1) as usize]
+        }
+    }
+}
+
+impl Solution {
+    pub fn product_except_self(nums: Vec<i32>) -> Vec<i32> {
+        let mut prefix_array = vec![1; nums.len()];
+        let mut prefix = 1;
+        let mut postfix = 1;
+
+        for (index, num) in nums.iter().enumerate() {
+            prefix_array[index] = prefix * num;
+            prefix *= num;
+        }
+        let mut index = (nums.len() - 1) as i32;
+        while index >= 0 {
+            let i = index as usize;
+            if i > 0 {
+                prefix_array[i] = postfix * prefix_array[i - 1];
+                postfix *= nums[i];
+                index -= 1;
+            } else {
+                prefix_array[i] = postfix;
+                index -= 1;
+            }
+        }
+        prefix_array
+    }
+}
+
+struct MinStackNode {
+    val: i32,
+    min_index_at_push: usize,
+}
+struct MinStack {
+    list: Vec<i32>,
+    minimum_list: Vec<i32>,
+}
+
+impl MinStack {
+    fn new() -> Self {
+        Self {
+            list: Vec::new(),
+            minimum_list: Vec::new(),
+        }
+    }
+
+    fn push(&mut self, val: i32) {
+        match self.minimum_list.last() {
+            Some(minimum) => {
+                self.list.push(val);
+                self.minimum_list.push(*minimum.min(&val));
+            }
+            None => {
+                self.list.push(val);
+                self.minimum_list.push(val);
+            }
+        }
+    }
+
+    fn pop(&mut self) {
+        self.list.pop();
+        self.minimum_list.pop();
+    }
+
+    fn top(&self) -> i32 {
+        *self.list.last().unwrap()
+    }
+
+    fn get_min(&self) -> i32 {
+        *self.minimum_list.last().unwrap()
+    }
+}
+
+struct MinStack2 {
+    list: Vec<MinStackNode>,
+    minimum: Option<i32>,
+    min_index: Option<usize>,
+}
+impl MinStack2 {
+    fn new() -> Self {
+        Self {
+            list: Vec::new(),
+            min_index: None,
+            minimum: None,
+        }
+    }
+
+    fn push(&mut self, val: i32) {
+        match self.minimum {
+            Some(minimum) => {
+                if val < minimum {
+                    self.list.push(MinStackNode {
+                        val,
+                        min_index_at_push: self.list.len(),
+                    });
+                    self.min_index = Some(self.list.len() - 1);
+                    self.minimum = Some(val);
+                } else {
+                    self.list.push(MinStackNode {
+                        val,
+                        min_index_at_push: self.min_index.unwrap(),
+                    });
+                }
+            }
+            None => {
+                self.list.push(MinStackNode {
+                    val,
+                    min_index_at_push: 0,
+                });
+                self.min_index = Some(0);
+                self.minimum = Some(val);
+            }
+        }
+    }
+
+    fn pop(&mut self) {
+        if let Some(min_index) = self.min_index {
+            if min_index == self.list.len() - 1 {
+                self.list.pop();
+                if !self.list.is_empty() {
+                    let new_min_index = self.list[min_index - 1].min_index_at_push;
+                    let new_minium = self.list[new_min_index].val;
+                    self.min_index = Some(new_min_index);
+                    self.minimum = Some(new_minium);
+                } else {
+                    self.min_index = None;
+                    self.minimum = None;
+                }
+            } else {
+                self.list.pop();
+            }
+        }
+    }
+
+    fn top(&self) -> i32 {
+        self.list.last().unwrap().val
+    }
+
+    fn get_min(&self) -> i32 {
+        self.minimum.unwrap()
+    }
+}
+
+impl Solution {
+    pub fn is_valid_bst(root: Option<Rc<RefCell<TreeNode>>>) -> bool {
+        Solution::is_valid_binary_search_tree_helper(root, None, None)
+    }
+    pub fn is_valid_binary_search_tree_helper(
+        root: Option<Rc<RefCell<TreeNode>>>,
+        min: Option<i32>,
+        max: Option<i32>,
+    ) -> bool {
+        match root {
+            Some(valid_root) => {
+                let left = valid_root.borrow_mut().left.take();
+                let right = valid_root.borrow_mut().right.take();
+                let node_value = valid_root.borrow().val;
+                if let Some(min_val) = min {
+                    if node_value <= min_val {
+                        return false;
+                    }
+                }
+                if let Some(max_val) = max {
+                    if node_value >= max_val {
+                        return false;
+                    }
+                }
+                let is_left_child_valid =
+                    Solution::is_valid_binary_search_tree_helper(left, min, Some(node_value));
+                let is_right_child_valid =
+                    Solution::is_valid_binary_search_tree_helper(right, Some(node_value), max);
+
+                is_left_child_valid && is_right_child_valid
+            }
+            None => true,
+        }
+    }
+}
+
+impl Solution {
+    pub fn num_islands(grid: Vec<Vec<char>>) -> i32 {
+        let mut grid = grid;
+        let rows = grid.len();
+        let columns = grid[0].len();
+        let mut no_of_islands = 0;
+
+        for i in 0..rows {
+            for j in 0..columns {
+                if grid[i][j] == '1' {
+                    no_of_islands += 1;
+                    Solution::mark_island_parts(&mut grid, i, j, rows, columns);
+                }
+            }
+        }
+        no_of_islands
+    }
+    fn is_valid_pos_to_explore(
+        rows: usize,
+        columns: usize,
+        row_index: i32,
+        column_index: i32,
+        grid: &Vec<Vec<char>>,
+    ) -> bool {
+        if row_index >= rows as i32 {
+            return false;
+        }
+        if row_index < 0 {
+            return false;
+        }
+        if column_index >= columns as i32 {
+            return false;
+        }
+        if column_index < 0 {
+            return false;
+        }
+        grid[row_index as usize][column_index as usize] == '1'
+    }
+
+    fn mark_island_parts(
+        grid: &mut Vec<Vec<char>>,
+        row_index: usize,
+        column_index: usize,
+        rows: usize,
+        columns: usize,
+    ) {
+        grid[row_index][column_index] = '2';
+
+        let possible_directions = [(0, 1), (0, -1), (1, 0), (-1, 0)];
+        for (row_direction, column_direction) in possible_directions {
+            let neigbor_row_index = row_index as i32 + row_direction;
+            let neigbor_column_index = column_index as i32 + column_direction;
+            if Solution::is_valid_pos_to_explore(
+                rows,
+                columns,
+                neigbor_row_index,
+                neigbor_column_index,
+                grid,
+            ) {
+                Solution::mark_island_parts(
+                    grid,
+                    neigbor_row_index as usize,
+                    neigbor_column_index as usize,
+                    rows,
+                    columns,
+                );
+            }
+        }
+    }
+}
+
+impl Solution {
+    pub fn oranges_rotting(grid: Vec<Vec<i32>>) -> i32 {
+        let mut grid = grid;
+        let rows = grid.len();
+        let columns = grid[0].len();
+        let mut count_of_fresh_oranges = 0;
+
+        let mut starting_rotten_oranges = Vec::new();
+        for i in 0..rows {
+            for j in 0..columns {
+                if grid[i][j] == 2 {
+                    starting_rotten_oranges.push((i, j));
+                }
+                if grid[i][j] == 1 {
+                    count_of_fresh_oranges += 1;
+                }
+            }
+        }
+        if starting_rotten_oranges.is_empty() {
+            if count_of_fresh_oranges > 0 {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+        let minutes_to_rot = Solution::make_nearby_oranges_rotten(
+            &mut grid,
+            &mut count_of_fresh_oranges,
+            starting_rotten_oranges,
+            rows,
+            columns,
+        );
+        if count_of_fresh_oranges == 0 {
+            minutes_to_rot
+        } else {
+            -1
+        }
+    }
+    fn is_valid_ripe_orange_to_explore(
+        rows: usize,
+        columns: usize,
+        row_index: i32,
+        column_index: i32,
+        grid: &[Vec<i32>],
+    ) -> bool {
+        if row_index >= rows as i32 {
+            return false;
+        }
+        if row_index < 0 {
+            return false;
+        }
+        if column_index >= columns as i32 {
+            return false;
+        }
+        if column_index < 0 {
+            return false;
+        }
+        grid[row_index as usize][column_index as usize] == 1
+    }
+
+    fn make_nearby_oranges_rotten(
+        grid: &mut Vec<Vec<i32>>,
+        count_of_fresh_oranges: &mut i32,
+        starting_rotten_oranges: Vec<(usize, usize)>,
+        rows: usize,
+        columns: usize,
+    ) -> i32 {
+        let mut minutes = 0;
+        let mut traversal_queue = VecDeque::from(starting_rotten_oranges);
+        let possible_directions = [(0, 1), (0, -1), (1, 0), (-1, 0)];
+        while !traversal_queue.is_empty() && *count_of_fresh_oranges > 0 {
+            for _ in 0..traversal_queue.len() {
+                let (row_index, column_index) = traversal_queue.pop_front().unwrap();
+                for (row_direction, column_direction) in possible_directions {
+                    let neigbor_row_index = row_index as i32 + row_direction;
+                    let neigbor_column_index = column_index as i32 + column_direction;
+                    if Solution::is_valid_ripe_orange_to_explore(
+                        rows,
+                        columns,
+                        neigbor_row_index,
+                        neigbor_column_index,
+                        grid,
+                    ) {
+                        grid[neigbor_row_index as usize][neigbor_column_index as usize] = 3;
+                        traversal_queue
+                            .push_back((neigbor_row_index as usize, neigbor_column_index as usize));
+                        *count_of_fresh_oranges -= 1;
+                    }
+                }
+            }
+            minutes += 1;
+        }
+
+        minutes
     }
 }
 
 
 impl Solution {
-    pub fn coin_change(coins: Vec<i32>, amount: i32) -> i32 {
-        let mut amount=amount;
-        let mut no_of_coins=0;
-        let mut coins=coins;
-        coins.sort_by(|a,b|b.cmp(a));
+    pub fn search(nums: Vec<i32>, target: i32) -> i32 {
+        let nums_len=nums.len();
+        let mut left_pointer=0;
+        let mut right_pointer=nums_len-1;
 
-        for coin in coins{
-            let denomination_coins=amount/coin;
-            if denomination_coins==0{
-                continue;
+        while left_pointer<right_pointer{
+            let min_index=left_pointer+(right_pointer-left_pointer)/2;
+
+            if nums[min_index]>nums[right_pointer]{
+                left_pointer=min_index+1;
+            }else{
+                right_pointer=min_index;
             }
-            no_of_coins+=denomination_coins;
-            amount %= coin;
+        }
+        let pivot=left_pointer;
+        if pivot==0{
+            left_pointer=0;
+            right_pointer=nums_len-1;
+        }else if target>=nums[0] && target<=nums[pivot-1]{
+            left_pointer=0;
+            right_pointer=pivot-1;
+        }else{
+            left_pointer=pivot;
+            right_pointer=nums_len-1;
 
         }
-        if no_of_coins==0{
-            -1
+        while left_pointer<=right_pointer{
+            let mid=left_pointer+(right_pointer-left_pointer)/2;
+            if nums[mid]==target{
+                return mid as i32;
+            }
+            if target<nums[mid]{
+                if mid==0{
+                    break;
+                }
+                right_pointer=mid-1;
+            }else{
+                left_pointer=mid+1;
+            }
+        }
+        -1
+        
+    }
+}
+
+
+impl Solution {
+    pub fn combination_sum(candidates: Vec<i32>, target: i32) -> Vec<Vec<i32>> {
+        let mut paths=Vec::new();
+        let mut path=Vec::new();
+        for (index,candidate) in candidates.iter().enumerate(){
+            let difference=target-candidate;
+            if difference<0{
+                continue;
+            }
+            Solution::possible_paths(&mut path, &mut paths,(difference,*candidate) , &candidates[index..]);
+        }
+        paths
+        
+    }
+    fn possible_paths(path:&mut Vec<i32>,paths:&mut Vec<Vec<i32>>,node:(i32,i32),candidates:&[i32]){
+        path.push(node.1);
+        if node.0==0{
+            paths.push(path.clone());
         }else{
-            no_of_coins
+            for (index,candidate) in candidates.iter().enumerate(){
+                let difference=node.0-candidate;
+                if difference<0{
+                    continue;
+                }
+                Solution::possible_paths(path,paths,(difference,*candidate),&candidates[index..]);
+                
+            }
+        }
+        path.pop();
+
+
+    }
+}
+
+
+impl Solution {
+    pub fn permute(nums: Vec<i32>) -> Vec<Vec<i32>> {
+        for i in 0..nums.len(){
+            let mut permutation=Vec::new();
+            for j in 0..nums.len(){
+
+            }
         }
         
     }
