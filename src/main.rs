@@ -1,6 +1,6 @@
 use central_tendencies::graph::{Graph, Neighbour};
 use central_tendencies::tree::{Node, Tree};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 fn main() {
     // let adjacency_list = HashMap::from([
@@ -214,7 +214,7 @@ impl TreeNode {
         }
     }
 }
-use core::{f32, num};
+use core::{f32, num, time};
 use std::cell::RefCell;
 use std::cmp::{max, min};
 use std::collections::{HashSet, VecDeque};
@@ -359,7 +359,7 @@ impl Solution {
 }
 
 impl Solution {
-    pub fn lowest_common_ancestor(
+    pub fn lowest_common_ancestor_binary_search_tree(
         root: Option<Rc<RefCell<TreeNode>>>,
         p: Option<Rc<RefCell<TreeNode>>>,
         q: Option<Rc<RefCell<TreeNode>>>,
@@ -679,7 +679,7 @@ impl Solution {
                 final_intervals.push(intervals[i].clone());
             } else {
                 new_interval[0] = min(new_interval[0], intervals[i][0]);
-                new_interval[1] = min(new_interval[1], intervals[i][1]);
+                new_interval[1] = max(new_interval[1], intervals[i][1]);
             }
         }
         final_intervals.push(new_interval);
@@ -1514,96 +1514,318 @@ impl Solution {
     }
 }
 
-
 impl Solution {
     pub fn search(nums: Vec<i32>, target: i32) -> i32 {
-        let nums_len=nums.len();
-        let mut left_pointer=0;
-        let mut right_pointer=nums_len-1;
+        let nums_len = nums.len();
+        let mut left_pointer = 0;
+        let mut right_pointer = nums_len - 1;
 
-        while left_pointer<right_pointer{
-            let min_index=left_pointer+(right_pointer-left_pointer)/2;
+        while left_pointer < right_pointer {
+            let min_index = left_pointer + (right_pointer - left_pointer) / 2;
 
-            if nums[min_index]>nums[right_pointer]{
-                left_pointer=min_index+1;
-            }else{
-                right_pointer=min_index;
+            if nums[min_index] > nums[right_pointer] {
+                left_pointer = min_index + 1;
+            } else {
+                right_pointer = min_index;
             }
         }
-        let pivot=left_pointer;
-        if pivot==0{
-            left_pointer=0;
-            right_pointer=nums_len-1;
-        }else if target>=nums[0] && target<=nums[pivot-1]{
-            left_pointer=0;
-            right_pointer=pivot-1;
-        }else{
-            left_pointer=pivot;
-            right_pointer=nums_len-1;
-
+        let pivot = left_pointer;
+        if pivot == 0 {
+            left_pointer = 0;
+            right_pointer = nums_len - 1;
+        } else if target >= nums[0] && target <= nums[pivot - 1] {
+            left_pointer = 0;
+            right_pointer = pivot - 1;
+        } else {
+            left_pointer = pivot;
+            right_pointer = nums_len - 1;
         }
-        while left_pointer<=right_pointer{
-            let mid=left_pointer+(right_pointer-left_pointer)/2;
-            if nums[mid]==target{
+        while left_pointer <= right_pointer {
+            let mid = left_pointer + (right_pointer - left_pointer) / 2;
+            if nums[mid] == target {
                 return mid as i32;
             }
-            if target<nums[mid]{
-                if mid==0{
+            if target < nums[mid] {
+                if mid == 0 {
                     break;
                 }
-                right_pointer=mid-1;
-            }else{
-                left_pointer=mid+1;
+                right_pointer = mid - 1;
+            } else {
+                left_pointer = mid + 1;
             }
         }
         -1
-        
     }
 }
-
 
 impl Solution {
     pub fn combination_sum(candidates: Vec<i32>, target: i32) -> Vec<Vec<i32>> {
-        let mut paths=Vec::new();
-        let mut path=Vec::new();
-        for (index,candidate) in candidates.iter().enumerate(){
-            let difference=target-candidate;
-            if difference<0{
+        let mut paths = Vec::new();
+        let mut path = Vec::new();
+        for (index, candidate) in candidates.iter().enumerate() {
+            let difference = target - candidate;
+            if difference < 0 {
                 continue;
             }
-            Solution::possible_paths(&mut path, &mut paths,(difference,*candidate) , &candidates[index..]);
+            Solution::possible_paths(
+                &mut path,
+                &mut paths,
+                (difference, *candidate),
+                &candidates[index..],
+            );
         }
         paths
-        
     }
-    fn possible_paths(path:&mut Vec<i32>,paths:&mut Vec<Vec<i32>>,node:(i32,i32),candidates:&[i32]){
+    fn possible_paths(
+        path: &mut Vec<i32>,
+        paths: &mut Vec<Vec<i32>>,
+        node: (i32, i32),
+        candidates: &[i32],
+    ) {
         path.push(node.1);
-        if node.0==0{
+        if node.0 == 0 {
             paths.push(path.clone());
-        }else{
-            for (index,candidate) in candidates.iter().enumerate(){
-                let difference=node.0-candidate;
-                if difference<0{
+        } else {
+            for (index, candidate) in candidates.iter().enumerate() {
+                let difference = node.0 - candidate;
+                if difference < 0 {
                     continue;
                 }
-                Solution::possible_paths(path,paths,(difference,*candidate),&candidates[index..]);
-                
+                Solution::possible_paths(
+                    path,
+                    paths,
+                    (difference, *candidate),
+                    &candidates[index..],
+                );
             }
         }
         path.pop();
+    }
+}
 
+impl Solution {
+    pub fn permute(nums: Vec<i32>) -> Vec<Vec<i32>> {
+        let mut paths = Vec::new();
+        let mut path = Vec::new();
+        let mut visited = HashSet::new();
+        for num in nums.iter() {
+            Solution::possible_paths_permutations(&mut path, &mut paths, &mut visited, *num, &nums);
+        }
+        paths
+    }
+    fn possible_paths_permutations(
+        path: &mut Vec<i32>,
+        paths: &mut Vec<Vec<i32>>,
+        visited: &mut HashSet<i32>,
+        node: i32,
+        nums: &[i32],
+    ) {
+        path.push(node);
+        visited.insert(node);
+        if path.len() == nums.len() {
+            paths.push(path.clone());
+        } else {
+            for num in nums.iter() {
+                if visited.contains(num) {
+                    continue;
+                }
+                Solution::possible_paths_permutations(path, paths, visited, *num, nums);
+            }
+        }
+        path.pop();
+        visited.remove(&node);
+    }
+}
 
+impl Solution {
+    pub fn merge(intervals: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
+        let mut intervals = intervals;
+        intervals.sort_by_key(|a| a[0]);
+        let mut final_intervals = Vec::new();
+        final_intervals.push(intervals[0].clone());
+        for current in intervals.into_iter().skip(1) {
+            let last = final_intervals.last_mut().unwrap();
+            if current[0] < last[1] {
+                last[1] = max(current[1], last[1]);
+            } else {
+                final_intervals.push(current);
+            }
+        }
+        final_intervals
+    }
+}
+
+impl Solution {
+    pub fn lowest_common_ancestor(
+        root: Option<Rc<RefCell<TreeNode>>>,
+        p: Option<Rc<RefCell<TreeNode>>>,
+        q: Option<Rc<RefCell<TreeNode>>>,
+    ) -> Option<Rc<RefCell<TreeNode>>> {
+        match root{
+            Some(root_node) => {
+                match p.zip(q){
+                    Some((p_node,q_node)) => {
+                        if root_node.borrow().val==p_node.borrow().val || root_node.borrow().val ==q_node.borrow().val{
+                            return Some(root_node);
+
+                        }
+                        let left=Solution::lowest_common_ancestor(root_node.borrow().left.clone(), Some(Rc::clone(&p_node)), Some(Rc::clone(&q_node)));
+                        let right=Solution::lowest_common_ancestor(root_node.borrow().right.clone(), Some(p_node), Some(q_node));
+                        if left.is_some() && right.is_some(){
+                            return Some(root_node);
+                        }
+                        left.or(right)
+
+                    },
+                    None => None,
+                }
+
+            },
+            None => {
+                None
+            },
+        }
+    }
+    pub fn lowest_common_ancestor_through_traversal(
+        root: Option<Rc<RefCell<TreeNode>>>,
+        p: Option<Rc<RefCell<TreeNode>>>,
+        q: Option<Rc<RefCell<TreeNode>>>,
+    ) -> Option<Rc<RefCell<TreeNode>>> {
+        let mut path1 = Vec::new();
+        let mut path2 = Vec::new();
+        match root {
+            Some(root_node) => {
+                match p {
+                    Some(p_node) => {
+                        Solution::traverse_tree(
+                            &mut path1,
+                            Rc::clone(&root_node),
+                            Rc::clone(&p_node),
+                        );
+                    }
+                    None => {
+                        return None;
+                    }
+                }
+                match q {
+                    Some(q_node) => {
+                        Solution::traverse_tree(
+                            &mut path2,
+                            Rc::clone(&root_node),
+                            Rc::clone(&q_node),
+                        );
+                    }
+                    None => {
+                        return None;
+                    }
+                }
+                let path1_len = path1.len();
+                let path2_len = path2.len();
+                let mut current = Rc::clone(&path1[0]);
+                let mut path1 = path1.into_iter();
+                let mut path2 = path2.into_iter();
+                for _ in 0..max(path1_len, path2_len) {
+                    match path1.next() {
+                        Some(current_node) => match path2.next() {
+                            Some(current_node_path2) => {
+                                if current_node.borrow().val != current_node_path2.borrow().val {
+                                    return Some(current);
+                                }
+                                current = current_node_path2;
+                            }
+                            None => return Some(current),
+                        },
+                        None => return Some(current),
+                    }
+                }
+                Some(current)
+            }
+            None => None,
+        }
+    }
+
+    fn traverse_tree(
+        path: &mut Vec<Rc<RefCell<TreeNode>>>,
+        node: Rc<RefCell<TreeNode>>,
+        target: Rc<RefCell<TreeNode>>,
+    ) -> bool {
+        path.push(Rc::clone(&node));
+        if node.borrow().val== target.borrow().val{
+            return true;
+        }
+        let left = node.borrow().left.clone();
+        let right = node.borrow().right.clone();
+        let mut is_in_right = false;
+        let mut is_in_left = false;
+        if left.is_some() {
+            is_in_left = Solution::traverse_tree(path, left.unwrap(), Rc::clone(&target));
+        }
+        if right.is_some() {
+            is_in_right = Solution::traverse_tree(path, right.unwrap(), Rc::clone(&target));
+        }
+        if is_in_left || is_in_right{
+            return true;
+        }
+        path.pop();
+        false
     }
 }
 
 
-impl Solution {
-    pub fn permute(nums: Vec<i32>) -> Vec<Vec<i32>> {
-        for i in 0..nums.len(){
-            let mut permutation=Vec::new();
-            for j in 0..nums.len(){
 
-            }
+struct TimeMap {
+    map:HashMap<String,BTreeMap<i32,String>>
+
+}
+
+
+/** 
+ * `&self` means the method takes an immutable reference.
+ * If you need a mutable reference, change it to `&mut self` instead.
+ */
+impl TimeMap {
+
+    fn new() -> Self {
+        Self { map: HashMap::new() }
+        
+    }
+    
+    fn set(&mut self, key: String, value: String, timestamp: i32) {
+        self.map.entry(key).and_modify(|existing|{
+            existing.entry(timestamp).and_modify(|existing_time_map|{
+                *existing_time_map=value.clone();
+            }).or_insert(value.clone());
+
+        }).or_insert(BTreeMap::from([
+            (timestamp,value)
+        ]));
+
+
+
+
+        
+    }
+    
+    fn get(&self, key: String, timestamp: i32) -> String {
+        match self.map.get(&key){
+            Some(existing) => {
+                match existing.get(&timestamp){
+                    Some(existing_time_map) => {
+                        existing_time_map.to_string()
+                    },
+                    None => {
+                        for (key,value) in existing.iter().rev(){
+                            if key<&timestamp{
+                                return value.to_string();
+
+                            }
+                        }
+                        String::new()
+                        
+                        }
+                    }
+                },
+            None => String::new(),
         }
         
     }
