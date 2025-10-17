@@ -1773,7 +1773,7 @@ impl Solution {
 
 
 
-struct TimeMap {
+struct TimeMap2 {
     map:HashMap<String,BTreeMap<i32,String>>
 
 }
@@ -1783,7 +1783,7 @@ struct TimeMap {
  * `&self` means the method takes an immutable reference.
  * If you need a mutable reference, change it to `&mut self` instead.
  */
-impl TimeMap {
+impl TimeMap2 {
 
     fn new() -> Self {
         Self { map: HashMap::new() }
@@ -1828,5 +1828,49 @@ impl TimeMap {
             None => String::new(),
         }
         
+    }
+}
+
+struct TimeMap{
+    map:HashMap<String,Vec<(i32,String)>>
+
+}
+impl TimeMap{
+    fn new()->Self{
+        Self { map: HashMap::new() }
+    }
+    fn set(&mut self, key: String, value: String, timestamp: i32) {
+        self.map.entry(key).and_modify(|existing|{
+            existing.push((timestamp,value.clone()));
+
+        }).or_insert(vec![(timestamp,value)]);
+    }
+    fn get(&self, key: String, timestamp: i32) -> String {
+        match self.map.get(&key){
+            Some(existing) => {
+                let mut left_pointer=0;
+                let mut right_pointer=existing.len()-1;
+                let mut result= String::new();
+                while left_pointer<=right_pointer{
+                    let mid=left_pointer+(right_pointer-left_pointer)/2;
+                    if existing[mid].0<=timestamp{
+                        if existing[mid].0==timestamp{
+                            return existing[mid].1.to_string();
+                        }
+                        result=existing[mid].1.to_string();
+                        left_pointer=mid+1;
+
+                    }else{
+                        if mid==0{
+                            break;
+                        }
+                        right_pointer=mid-1;
+                    }
+
+                }
+                result
+            },
+            None => String::new(),
+        }
     }
 }
