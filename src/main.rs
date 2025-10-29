@@ -1,5 +1,7 @@
 use central_tendencies::graph::{Graph, Neighbour};
 use central_tendencies::tree::{Node, Tree};
+use central_tendencies::union_find::UnionFind;
+use std::collections::btree_set::Union;
 use std::collections::{BTreeMap, HashMap};
 
 fn main() {
@@ -491,7 +493,7 @@ impl Solution {
     }
 }
 
-use std::{i32, usize};
+use std::{any, i32, usize};
 
 use central_tendencies::heap::{GeneralHeap, Heap};
 impl Solution {
@@ -1661,29 +1663,32 @@ impl Solution {
         p: Option<Rc<RefCell<TreeNode>>>,
         q: Option<Rc<RefCell<TreeNode>>>,
     ) -> Option<Rc<RefCell<TreeNode>>> {
-        match root{
-            Some(root_node) => {
-                match p.zip(q){
-                    Some((p_node,q_node)) => {
-                        if root_node.borrow().val==p_node.borrow().val || root_node.borrow().val ==q_node.borrow().val{
-                            return Some(root_node);
-
-                        }
-                        let left=Solution::lowest_common_ancestor(root_node.borrow().left.clone(), Some(Rc::clone(&p_node)), Some(Rc::clone(&q_node)));
-                        let right=Solution::lowest_common_ancestor(root_node.borrow().right.clone(), Some(p_node), Some(q_node));
-                        if left.is_some() && right.is_some(){
-                            return Some(root_node);
-                        }
-                        left.or(right)
-
-                    },
-                    None => None,
+        match root {
+            Some(root_node) => match p.zip(q) {
+                Some((p_node, q_node)) => {
+                    if root_node.borrow().val == p_node.borrow().val
+                        || root_node.borrow().val == q_node.borrow().val
+                    {
+                        return Some(root_node);
+                    }
+                    let left = Solution::lowest_common_ancestor(
+                        root_node.borrow().left.clone(),
+                        Some(Rc::clone(&p_node)),
+                        Some(Rc::clone(&q_node)),
+                    );
+                    let right = Solution::lowest_common_ancestor(
+                        root_node.borrow().right.clone(),
+                        Some(p_node),
+                        Some(q_node),
+                    );
+                    if left.is_some() && right.is_some() {
+                        return Some(root_node);
+                    }
+                    left.or(right)
                 }
-
+                None => None,
             },
-            None => {
-                None
-            },
+            None => None,
         }
     }
     pub fn lowest_common_ancestor_through_traversal(
@@ -1750,7 +1755,7 @@ impl Solution {
         target: Rc<RefCell<TreeNode>>,
     ) -> bool {
         path.push(Rc::clone(&node));
-        if node.borrow().val== target.borrow().val{
+        if node.borrow().val == target.borrow().val {
             return true;
         }
         let left = node.borrow().left.clone();
@@ -1763,7 +1768,7 @@ impl Solution {
         if right.is_some() {
             is_in_right = Solution::traverse_tree(path, right.unwrap(), Rc::clone(&target));
         }
-        if is_in_left || is_in_right{
+        if is_in_left || is_in_right {
             return true;
         }
         path.pop();
@@ -1771,106 +1776,344 @@ impl Solution {
     }
 }
 
-
-
 struct TimeMap2 {
-    map:HashMap<String,BTreeMap<i32,String>>
-
+    map: HashMap<String, BTreeMap<i32, String>>,
 }
 
-
-/** 
+/**
  * `&self` means the method takes an immutable reference.
  * If you need a mutable reference, change it to `&mut self` instead.
  */
 impl TimeMap2 {
-
     fn new() -> Self {
-        Self { map: HashMap::new() }
-        
-    }
-    
-    fn set(&mut self, key: String, value: String, timestamp: i32) {
-        self.map.entry(key).and_modify(|existing|{
-            existing.entry(timestamp).and_modify(|existing_time_map|{
-                *existing_time_map=value.clone();
-            }).or_insert(value.clone());
-
-        }).or_insert(BTreeMap::from([
-            (timestamp,value)
-        ]));
-
-
-
-
-        
-    }
-    
-    fn get(&self, key: String, timestamp: i32) -> String {
-        match self.map.get(&key){
-            Some(existing) => {
-                match existing.get(&timestamp){
-                    Some(existing_time_map) => {
-                        existing_time_map.to_string()
-                    },
-                    None => {
-                        for (key,value) in existing.iter().rev(){
-                            if key<&timestamp{
-                                return value.to_string();
-
-                            }
-                        }
-                        String::new()
-                        
-                        }
-                    }
-                },
-            None => String::new(),
+        Self {
+            map: HashMap::new(),
         }
-        
     }
-}
 
-struct TimeMap{
-    map:HashMap<String,Vec<(i32,String)>>
-
-}
-impl TimeMap{
-    fn new()->Self{
-        Self { map: HashMap::new() }
-    }
     fn set(&mut self, key: String, value: String, timestamp: i32) {
-        self.map.entry(key).and_modify(|existing|{
-            existing.push((timestamp,value.clone()));
-
-        }).or_insert(vec![(timestamp,value)]);
+        self.map
+            .entry(key)
+            .and_modify(|existing| {
+                existing
+                    .entry(timestamp)
+                    .and_modify(|existing_time_map| {
+                        *existing_time_map = value.clone();
+                    })
+                    .or_insert(value.clone());
+            })
+            .or_insert(BTreeMap::from([(timestamp, value)]));
     }
+
     fn get(&self, key: String, timestamp: i32) -> String {
-        match self.map.get(&key){
-            Some(existing) => {
-                let mut left_pointer=0;
-                let mut right_pointer=existing.len()-1;
-                let mut result= String::new();
-                while left_pointer<=right_pointer{
-                    let mid=left_pointer+(right_pointer-left_pointer)/2;
-                    if existing[mid].0<=timestamp{
-                        if existing[mid].0==timestamp{
-                            return existing[mid].1.to_string();
+        match self.map.get(&key) {
+            Some(existing) => match existing.get(&timestamp) {
+                Some(existing_time_map) => existing_time_map.to_string(),
+                None => {
+                    for (key, value) in existing.iter().rev() {
+                        if key < &timestamp {
+                            return value.to_string();
                         }
-                        result=existing[mid].1.to_string();
-                        left_pointer=mid+1;
-
-                    }else{
-                        if mid==0{
-                            break;
-                        }
-                        right_pointer=mid-1;
                     }
-
+                    String::new()
                 }
-                result
             },
             None => String::new(),
         }
+    }
+}
+
+struct TimeMap {
+    map: HashMap<String, Vec<(i32, String)>>,
+}
+impl TimeMap {
+    fn new() -> Self {
+        Self {
+            map: HashMap::new(),
+        }
+    }
+    fn set(&mut self, key: String, value: String, timestamp: i32) {
+        self.map
+            .entry(key)
+            .and_modify(|existing| {
+                existing.push((timestamp, value.clone()));
+            })
+            .or_insert(vec![(timestamp, value)]);
+    }
+    fn get(&self, key: String, timestamp: i32) -> String {
+        match self.map.get(&key) {
+            Some(existing) => {
+                let mut left_pointer = 0;
+                let mut right_pointer = existing.len() - 1;
+                let mut result = String::new();
+                while left_pointer <= right_pointer {
+                    let mid = left_pointer + (right_pointer - left_pointer) / 2;
+                    if existing[mid].0 <= timestamp {
+                        if existing[mid].0 == timestamp {
+                            return existing[mid].1.to_string();
+                        }
+                        result = existing[mid].1.to_string();
+                        left_pointer = mid + 1;
+                    } else {
+                        if mid == 0 {
+                            break;
+                        }
+                        right_pointer = mid - 1;
+                    }
+                }
+                result
+            }
+            None => String::new(),
+        }
+    }
+}
+
+#[derive(Debug)]
+struct Account {
+    name: String,
+    emails: HashSet<String>,
+    active: bool,
+}
+
+impl Solution {
+    pub fn accounts_merge_2(accounts: Vec<Vec<String>>) -> Vec<Vec<String>> {
+        let mut email_map = HashMap::new();
+        let mut final_result: Vec<Account> = Vec::new();
+        let mut merged_accounts: HashMap<usize, usize> = HashMap::new();
+        let mut merged = HashSet::new();
+
+        for (index, account) in accounts.iter().enumerate() {
+            for address in account.iter().skip(1) {
+                if let Some(previous_index) = email_map.insert(address, index) {
+                    if previous_index == index {
+                        continue;
+                    } else {
+                        let mut previous_should_be_updated = false;
+                        let mut current_should_be_updated = false;
+
+                        let mut previous_to_change = previous_index;
+                        let mut current_to_change = index;
+                        let mut others_need_change=false;
+
+                        let index_in_final = match merged_accounts.get(&previous_index) {
+                            Some(merged_index_in_final) => {
+                                match merged_accounts.get(&index) {
+                                    Some(current_index_in_final) => {
+                                        if merged_index_in_final == current_index_in_final {
+                                            continue;
+                                        }
+                                        if final_result[*merged_index_in_final].active {
+                                            let second =
+                                                final_result.get_mut(*current_index_in_final).unwrap();
+                                            second.active = false;
+                                            let emails = second.emails.clone();
+                                            final_result[*merged_index_in_final].emails.extend(emails);
+                                            current_should_be_updated = true;
+                                            current_to_change= *current_index_in_final;
+                                            others_need_change=true;
+                                            *merged_index_in_final
+
+                                        }else{
+                                            let second =
+                                                final_result.get_mut(*merged_index_in_final).unwrap();
+                                            second.active = false;
+                                            let emails = second.emails.clone();
+                                            final_result[*current_index_in_final].emails.extend(emails);
+                                            previous_should_be_updated = true;
+                                            previous_to_change= *merged_index_in_final;
+                                            others_need_change=true;
+                                            *current_index_in_final
+
+                                        }
+                                    }
+                                    None => {
+                                        let second: Vec<String> = accounts[index]
+                                            .iter()
+                                            .skip(1)
+                                            .filter(|a| *a != address)
+                                            .cloned()
+                                            .collect();
+                                        final_result[*merged_index_in_final]
+                                            .emails
+                                            .extend(second.into_iter());
+                                        merged.insert(index);
+                                        current_should_be_updated = true;
+                                        *merged_index_in_final
+                                    }
+                                }
+                            }
+                            None => match merged_accounts.get(&index) {
+                                Some(current_index_in_final) => {
+                                    let second: Vec<String> = accounts[previous_index]
+                                        .iter()
+                                        .skip(1)
+                                        .filter(|a| *a != address)
+                                        .cloned()
+                                        .collect();
+                                    final_result[*current_index_in_final]
+                                        .emails
+                                        .extend(second.into_iter());
+                                    merged.insert(previous_index);
+                                    previous_should_be_updated = true;
+                                    *current_index_in_final
+                                }
+                                None => {
+                                    let mut first: Vec<String> =
+                                        accounts[previous_index].iter().skip(1).cloned().collect();
+                                    let second: Vec<String> = accounts[index]
+                                        .iter()
+                                        .skip(1)
+                                        .filter(|a| *a != address)
+                                        .cloned()
+                                        .collect();
+                                    first.extend_from_slice(&second);
+                                    final_result.push(Account {
+                                        name: accounts[previous_index][0].clone(),
+                                        emails: first.into_iter().collect(),
+                                        active: true,
+                                    });
+                                    merged.insert(previous_index);
+                                    merged.insert(index);
+                                    previous_should_be_updated = true;
+                                    current_should_be_updated = true;
+                                    final_result.len() - 1
+                                }
+                            },
+                        };
+                        if current_should_be_updated {
+                            if others_need_change{
+                                for (key,value) in merged_accounts.iter_mut(){
+                                    if *value==current_to_change{
+                                        *value=index_in_final;
+                                    }
+                                }
+                            }
+                            merged_accounts.insert(index, index_in_final);
+                        }
+                        if previous_should_be_updated {
+                            if others_need_change{
+
+                                for (key,value) in merged_accounts.iter_mut(){
+                                        if *value==previous_to_change{
+                                            *value=index_in_final;
+                                        }
+                                    }
+                            }
+                            merged_accounts.insert(previous_index, index_in_final);
+                        }
+                        println!("index is {} previous index is {} address is {} merged_accounts {:?}",index,previous_index,address,merged_accounts);
+                        println!("final result is {:?}",final_result);
+                    }
+                }
+            }
+        }
+
+        for i in 0..accounts.len() {
+            if merged.contains(&i) {
+                continue;
+            }
+            final_result.push(Account {
+                name: accounts[i][0].clone(),
+                emails: accounts[i][1..].iter().cloned().collect(),
+                active: true,
+            });
+        }
+        println!("final result is {:?}", final_result);
+        let mut final_result: Vec<Vec<String>> = final_result
+            .into_iter()
+            .filter(|a| a.active)
+            .map(|a| {
+                let mut vec_form = vec![a.name];
+                vec_form.extend(a.emails);
+                vec_form
+            })
+            .collect();
+        for item in final_result.iter_mut() {
+            let sub_slice = &mut item[1..];
+            sub_slice.sort();
+        }
+        final_result.sort_by(|a, b| a[0].cmp(&b[0]));
+        final_result
+    }
+}
+
+
+impl Solution {
+    pub fn accounts_merge(accounts: Vec<Vec<String>>) -> Vec<Vec<String>> {
+        let mut disjoint_set=UnionFind::new(accounts.len());
+        let mut email_map=HashMap::new();
+        for (index,account) in accounts.iter().enumerate(){
+            for address in account.iter().skip(1){
+                if let Some(existing_index)=email_map.insert(address, index){
+                    if existing_index==index{
+                        continue;
+                    }else{
+                        disjoint_set.union(existing_index, index);
+
+                    }
+                    
+                }
+            }
+
+        }
+        let mut accounts_map=HashMap::new();
+        for (key,value) in email_map{
+            let root=disjoint_set.find(value);
+            accounts_map.entry(root).and_modify(|a:&mut Vec<String>|{a.push(key.to_string())}).or_insert(vec![key.to_string()]);
+        }
+        let mut final_result= Vec::new();
+        for (key,mut value) in accounts_map{
+            let mut account=vec![accounts[key][0].clone()];
+            value.sort();
+            account.append(&mut value);
+            final_result.push(account);
+
+        }
+        final_result
+    }
+}
+
+
+impl Solution {
+    pub fn sort_colors_bucket_sort(nums: &mut Vec<i32>) {
+        let mut buckets:Vec<i32>=vec![0;3];
+
+        for num in nums.iter(){
+            buckets[*num as usize]+=1;
+        }
+        let mut i=0;
+        for (index,bucket) in buckets.iter_mut().enumerate(){
+            while *bucket>0{
+                nums[i]=index as i32;
+                i+=1;
+                *bucket-=1;
+ 
+            }
+
+        }
+        
+    }
+}
+
+impl Solution {
+    pub fn sort_colors(nums: &mut Vec<i32>) {
+        let mut left_pointer=0;
+        let mut right_pointer=nums.len()-1;
+        let mut i=0;
+
+        while i<=right_pointer{
+            if nums[i]==0{
+                nums.swap(left_pointer, i);
+                left_pointer+=1;
+                i+=1;
+            }else if nums[i]==2{
+                nums.swap(right_pointer, i);
+                right_pointer-=1;
+            }else{
+                i+=1;
+
+            }
+        }
+        
     }
 }

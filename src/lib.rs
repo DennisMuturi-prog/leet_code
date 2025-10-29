@@ -2,6 +2,7 @@ pub mod heap;
 pub mod sorting;
 pub mod graph;
 pub mod tree;
+pub mod union_find;
 
 
 #[cfg(test)]
