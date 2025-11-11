@@ -2393,5 +2393,32 @@ impl Solution {
     }
 }
 
+impl Solution {
+    pub fn subsets(nums: Vec<i32>) -> Vec<Vec<i32>> {
+        let mut paths=Vec::new();
+        let mut path=Vec::new();
+        Solution::find_paths(0, &nums, &mut paths, &mut path, true);
+        Solution::find_paths(0, &nums, &mut paths, &mut path, false);
+        paths  
+    }
+    pub fn find_paths(index:usize,nums:&[i32],paths:&mut Vec<Vec<i32>>,path:&mut Vec<i32>,include_current_number:bool){
+        if index>=nums.len(){
+            return;
+        }
+        if include_current_number{
+            path.push(nums[index]);
+        }
+        if index+1>=nums.len(){
+            paths.push(path.clone());
+        }
+        Solution::find_paths(index+1, nums, paths, path, true);
+        Solution::find_paths(index+1, nums, paths, path, false);
+        if include_current_number{
+            path.pop();
+        }
+
+    }
+}
+
 
 
