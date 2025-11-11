@@ -144,9 +144,9 @@ fn main() {
     // println!("path is {:?}", path);
     // println!("all_paths is {:?}", all_paths);
 
-    let a="-23";
-    let num:i32=a.parse().unwrap();
-    println!("num is {}",num);
+    let a = "-23";
+    let num: i32 = a.parse().unwrap();
+    println!("num is {}", num);
 }
 //Definition for singly-linked list.
 #[derive(PartialEq, Eq, Clone, Debug)]
@@ -2265,7 +2265,7 @@ impl Solution {
     pub fn my_atoi(s: String) -> i32 {
         let mut split_text = s.split_whitespace();
         let mut numbers = String::new();
-        let mut sign_found=false;
+        let mut sign_found = false;
 
         let first_item = match split_text.next() {
             Some(val) => val,
@@ -2273,152 +2273,254 @@ impl Solution {
         };
         let chars = first_item.chars();
         for character in chars {
-             if character.is_numeric() {
+            if character.is_numeric() {
                 numbers.push(character);
-            }else if character=='-' || character=='+'{
-                if !sign_found&&numbers.is_empty(){
+            } else if character == '-' || character == '+' {
+                if !sign_found && numbers.is_empty() {
                     numbers.push(character);
-                    sign_found=true;
-                }else{
-                    let final_number:i32 = match numbers.parse() {
-                    Ok(val) => val,
-                    Err(err) => {
-                        match err.kind(){
+                    sign_found = true;
+                } else {
+                    let final_number: i32 = match numbers.parse() {
+                        Ok(val) => val,
+                        Err(err) => match err.kind() {
                             std::num::IntErrorKind::PosOverflow => {
                                 return i32::MAX;
-                            },
+                            }
                             std::num::IntErrorKind::NegOverflow => {
                                 return i32::MIN;
-                            },
-                            
-                            _ => return 0
-                        }
-                        
-                    }
-                };
-                return final_number;
+                            }
 
+                            _ => return 0,
+                        },
+                    };
+                    return final_number;
                 }
-
-            }else {
-                let final_number:i32 = match numbers.parse() {
+            } else {
+                let final_number: i32 = match numbers.parse() {
                     Ok(val) => val,
-                    Err(err) => {
-                        match err.kind(){
-                            std::num::IntErrorKind::PosOverflow => {
-                                return i32::MAX;
-                            },
-                            std::num::IntErrorKind::NegOverflow => {
-                                return i32::MIN;
-                            },
-                            
-                            _ => return 0
+                    Err(err) => match err.kind() {
+                        std::num::IntErrorKind::PosOverflow => {
+                            return i32::MAX;
                         }
-                        
-                    }
+                        std::num::IntErrorKind::NegOverflow => {
+                            return i32::MIN;
+                        }
+
+                        _ => return 0,
+                    },
                 };
                 return final_number;
             }
         }
 
-        let final_number:i32 = match numbers.parse() {
+        let final_number: i32 = match numbers.parse() {
             Ok(val) => val,
-            Err(err) => {
-                match err.kind(){
-                            std::num::IntErrorKind::PosOverflow => {
-                                return i32::MAX;
-                            },
-                            std::num::IntErrorKind::NegOverflow => {
-                                return i32::MIN;
-                            },
-                            
-                            _ => return 0
-                        }
-            }
+            Err(err) => match err.kind() {
+                std::num::IntErrorKind::PosOverflow => {
+                    return i32::MAX;
+                }
+                std::num::IntErrorKind::NegOverflow => {
+                    return i32::MIN;
+                }
+
+                _ => return 0,
+            },
         };
         final_number
     }
 }
 
-
 impl Solution {
     pub fn spiral_order(matrix: Vec<Vec<i32>>) -> Vec<i32> {
-        let m=matrix.len();
-        let n=matrix[0].len();
-        let mut previous_horizontal_movement:i32=1;
-        let mut horizontal_movement:i32=1;
-        let mut final_result=Vec::new();
-        let mut vertical_movement:i32=0;
-        let mut i:i32=0;
-        let mut j:i32=0;
-        let mut previous_vertical_movement:i32=-1;
-        let mut visited_no=0;
-        let mut visited:HashSet<(i32,i32)>=HashSet::new();
-        while visited_no<(m*n){
-            visited.insert((i,j));
-            if horizontal_movement!=0{
+        let m = matrix.len();
+        let n = matrix[0].len();
+        let mut previous_horizontal_movement: i32 = 1;
+        let mut horizontal_movement: i32 = 1;
+        let mut final_result = Vec::new();
+        let mut vertical_movement: i32 = 0;
+        let mut i: i32 = 0;
+        let mut j: i32 = 0;
+        let mut previous_vertical_movement: i32 = -1;
+        let mut visited_no = 0;
+        let mut visited: HashSet<(i32, i32)> = HashSet::new();
+        while visited_no < (m * n) {
+            visited.insert((i, j));
+            if horizontal_movement != 0 {
                 final_result.push(matrix[i as usize][j as usize]);
-                j+=horizontal_movement;
-                visited_no+=1;
-                if j>=n as i32 || j<0 || visited.contains(&(i,j)){
+                j += horizontal_movement;
+                visited_no += 1;
+                if j >= n as i32 || j < 0 || visited.contains(&(i, j)) {
                     println!("n is {n} and j is {j}");
-                    j-=horizontal_movement;
-                    previous_horizontal_movement=horizontal_movement;
-                    horizontal_movement=0;
+                    j -= horizontal_movement;
+                    previous_horizontal_movement = horizontal_movement;
+                    horizontal_movement = 0;
                     vertical_movement = -previous_vertical_movement;
-                    i+=vertical_movement;
-
+                    i += vertical_movement;
                 }
-
-            }else if vertical_movement!=0{
+            } else if vertical_movement != 0 {
                 println!("j is {j} i is {i}");
                 final_result.push(matrix[i as usize][j as usize]);
-                i+=vertical_movement;
-                visited_no+=1;
-                if i>=m as i32 || i<0 || visited.contains(&(i,j)) {
-                    i-=vertical_movement;
-                    previous_vertical_movement=vertical_movement;
-                    vertical_movement=0;
+                i += vertical_movement;
+                visited_no += 1;
+                if i >= m as i32 || i < 0 || visited.contains(&(i, j)) {
+                    i -= vertical_movement;
+                    previous_vertical_movement = vertical_movement;
+                    vertical_movement = 0;
                     horizontal_movement = -previous_horizontal_movement;
-                    j+=horizontal_movement;
-
+                    j += horizontal_movement;
                 }
-
             }
-            println!("final result {:?}",final_result);
-
+            println!("final result {:?}", final_result);
         }
         final_result
-        
     }
 }
 
 impl Solution {
     pub fn subsets(nums: Vec<i32>) -> Vec<Vec<i32>> {
-        let mut paths=Vec::new();
-        let mut path=Vec::new();
+        let mut paths = Vec::new();
+        let mut path = Vec::new();
         Solution::find_paths(0, &nums, &mut paths, &mut path, true);
         Solution::find_paths(0, &nums, &mut paths, &mut path, false);
-        paths  
+        paths
     }
-    pub fn find_paths(index:usize,nums:&[i32],paths:&mut Vec<Vec<i32>>,path:&mut Vec<i32>,include_current_number:bool){
-        if index>=nums.len(){
+    pub fn find_paths(
+        index: usize,
+        nums: &[i32],
+        paths: &mut Vec<Vec<i32>>,
+        path: &mut Vec<i32>,
+        include_current_number: bool,
+    ) {
+        if index >= nums.len() {
             return;
         }
-        if include_current_number{
+        if include_current_number {
             path.push(nums[index]);
         }
-        if index+1>=nums.len(){
+        if index + 1 >= nums.len() {
             paths.push(path.clone());
         }
-        Solution::find_paths(index+1, nums, paths, path, true);
-        Solution::find_paths(index+1, nums, paths, path, false);
-        if include_current_number{
+        Solution::find_paths(index + 1, nums, paths, path, true);
+        Solution::find_paths(index + 1, nums, paths, path, false);
+        if include_current_number {
             path.pop();
         }
-
     }
 }
 
+impl Solution {
+    pub fn right_side_view_2(root: Option<Rc<RefCell<TreeNode>>>) -> Vec<i32> {
+        let mut visible = Vec::new();
+        let mut outermost_right_side_depth =
+            Solution::find_depth_of_side_tree(root.clone(), 0, &mut visible);
+        Solution::traverse_binary_tree_2(root, 1, &mut visible, &mut outermost_right_side_depth);
+        visible
+    }
+    pub fn find_depth_of_side_tree(
+        tree_node: Option<Rc<RefCell<TreeNode>>>,
+        depth: usize,
+        visible: &mut Vec<i32>,
+    ) -> usize {
+        match tree_node {
+            Some(node) => {
+                let right = node.borrow().right.clone();
+                visible.push(node.borrow().val);
+                if right.is_some() {
+                    Solution::find_depth_of_side_tree(right, depth + 1, visible)
+                } else {
+                    let left = node.borrow_mut().left.clone();
+                    Solution::find_depth_of_side_tree(left, depth + 1, visible)
+                }
+            }
+            None => depth,
+        }
+    }
+    pub fn traverse_binary_tree_2(
+        tree_node: Option<Rc<RefCell<TreeNode>>>,
+        depth: usize,
+        visible: &mut Vec<i32>,
+        right_side_depth: &mut usize,
+    ) {
+        if let Some(node) = tree_node {
+            let node = Rc::clone(&node);
+            let left = node.borrow().left.clone();
+            let right = node.borrow().right.clone();
+            if depth > *right_side_depth {
+                visible.push(node.borrow().val);
+                *right_side_depth = depth;
+            }
+            Solution::traverse_binary_tree_2(right, depth + 1, visible, right_side_depth);
+            Solution::traverse_binary_tree_2(left, depth + 1, visible, right_side_depth);
+        }
+    }
+}
 
+impl Solution {
+    pub fn right_side_view_dfs(root: Option<Rc<RefCell<TreeNode>>>) -> Vec<i32> {
+        let mut visible = Vec::new();
+        let mut outermost_right_side_depth = 0;
+        Solution::traverse_binary_tree_dfs(root, 1, &mut visible, &mut outermost_right_side_depth);
+        visible
+    }
 
+    pub fn traverse_binary_tree_dfs(
+        tree_node: Option<Rc<RefCell<TreeNode>>>,
+        depth: usize,
+        visible: &mut Vec<i32>,
+        right_side_depth: &mut usize,
+    ) {
+        if let Some(node) = tree_node {
+            let node = Rc::clone(&node);
+            let left = node.borrow().left.clone();
+            let right = node.borrow().right.clone();
+            if depth > *right_side_depth {
+                visible.push(node.borrow().val);
+                *right_side_depth = depth;
+            }
+            Solution::traverse_binary_tree_dfs(right, depth + 1, visible, right_side_depth);
+            Solution::traverse_binary_tree_dfs(left, depth + 1, visible, right_side_depth);
+        }
+    }
+}
+
+impl Solution {
+    pub fn right_side_view_bfs(root: Option<Rc<RefCell<TreeNode>>>) -> Vec<i32> {
+        let mut visible = Vec::new();
+        let mut traversal = VecDeque::new();
+        match root {
+            Some(val) => {
+                traversal.push_back(val);
+            }
+            None => {
+                return visible;
+            }
+        }
+
+        while !traversal.is_empty() {
+            let initial_len = traversal.len();
+            let node = traversal.pop_front().unwrap();
+            println!("val is {} len is {}", node.borrow().val, initial_len);
+            let right = node.borrow_mut().right.take();
+            let left = node.borrow_mut().left.take();
+            if let Some(val) = right {
+                traversal.push_back(val);
+            }
+            if let Some(val) = left {
+                traversal.push_back(val);
+            }
+            visible.push(node.borrow().val);
+            for _ in 0..initial_len - 1 {
+                let node = traversal.pop_front().unwrap();
+                let right = node.borrow_mut().right.take();
+                let left = node.borrow_mut().left.take();
+                if let Some(val) = right {
+                    traversal.push_back(val);
+                }
+                if let Some(val) = left {
+                    traversal.push_back(val);
+                }
+            }
+        }
+        visible
+    }
+}
