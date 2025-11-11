@@ -2,7 +2,7 @@ use central_tendencies::graph::{Graph, Neighbour};
 use central_tendencies::tree::{Node, Tree};
 use central_tendencies::union_find::UnionFind;
 use std::collections::btree_set::Union;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, hash_set};
 
 fn main() {
     // let adjacency_list = HashMap::from([
@@ -126,23 +126,27 @@ fn main() {
     //   1
 
     // Build from bottom up
-    let node1 = Node::new(1, None, None);
-    let node3 = Node::new(3, Some(Box::new(node1)), None);
-    let node7 = Node::new(7, None, None);
-    let node5 = Node::new(5, Some(Box::new(node3)), Some(Box::new(node7)));
+    // let node1 = Node::new(1, None, None);
+    // let node3 = Node::new(3, Some(Box::new(node1)), None);
+    // let node7 = Node::new(7, None, None);
+    // let node5 = Node::new(5, Some(Box::new(node3)), Some(Box::new(node7)));
 
-    let node12 = Node::new(12, None, None);
-    let node20 = Node::new(20, None, None);
-    let node15 = Node::new(15, Some(Box::new(node12)), Some(Box::new(node20)));
+    // let node12 = Node::new(12, None, None);
+    // let node20 = Node::new(20, None, None);
+    // let node15 = Node::new(15, Some(Box::new(node12)), Some(Box::new(node20)));
 
-    let root = Node::new(10, Some(Box::new(node5)), Some(Box::new(node15)));
+    // let root = Node::new(10, Some(Box::new(node5)), Some(Box::new(node15)));
 
-    let tree = Tree::new(root);
-    let path = tree.find_path_from_root(7);
-    let all_paths = tree.all_paths_from_root_to_leaf_nodes();
+    // let tree = Tree::new(root);
+    // let path = tree.find_path_from_root(7);
+    // let all_paths = tree.all_paths_from_root_to_leaf_nodes();
 
-    println!("path is {:?}", path);
-    println!("all_paths is {:?}", all_paths);
+    // println!("path is {:?}", path);
+    // println!("all_paths is {:?}", all_paths);
+
+    let a="-23";
+    let num:i32=a.parse().unwrap();
+    println!("num is {}",num);
 }
 //Definition for singly-linked list.
 #[derive(PartialEq, Eq, Clone, Debug)]
@@ -493,7 +497,7 @@ impl Solution {
     }
 }
 
-use std::{any, i32, usize};
+use std::{any, i32, mem, usize};
 
 use central_tendencies::heap::{GeneralHeap, Heap};
 impl Solution {
@@ -1893,55 +1897,51 @@ impl Solution {
 
                         let mut previous_to_change = previous_index;
                         let mut current_to_change = index;
-                        let mut others_need_change=false;
+                        let mut others_need_change = false;
 
                         let index_in_final = match merged_accounts.get(&previous_index) {
-                            Some(merged_index_in_final) => {
-                                match merged_accounts.get(&index) {
-                                    Some(current_index_in_final) => {
-                                        if merged_index_in_final == current_index_in_final {
-                                            continue;
-                                        }
-                                        if final_result[*merged_index_in_final].active {
-                                            let second =
-                                                final_result.get_mut(*current_index_in_final).unwrap();
-                                            second.active = false;
-                                            let emails = second.emails.clone();
-                                            final_result[*merged_index_in_final].emails.extend(emails);
-                                            current_should_be_updated = true;
-                                            current_to_change= *current_index_in_final;
-                                            others_need_change=true;
-                                            *merged_index_in_final
-
-                                        }else{
-                                            let second =
-                                                final_result.get_mut(*merged_index_in_final).unwrap();
-                                            second.active = false;
-                                            let emails = second.emails.clone();
-                                            final_result[*current_index_in_final].emails.extend(emails);
-                                            previous_should_be_updated = true;
-                                            previous_to_change= *merged_index_in_final;
-                                            others_need_change=true;
-                                            *current_index_in_final
-
-                                        }
+                            Some(merged_index_in_final) => match merged_accounts.get(&index) {
+                                Some(current_index_in_final) => {
+                                    if merged_index_in_final == current_index_in_final {
+                                        continue;
                                     }
-                                    None => {
-                                        let second: Vec<String> = accounts[index]
-                                            .iter()
-                                            .skip(1)
-                                            .filter(|a| *a != address)
-                                            .cloned()
-                                            .collect();
-                                        final_result[*merged_index_in_final]
-                                            .emails
-                                            .extend(second.into_iter());
-                                        merged.insert(index);
+                                    if final_result[*merged_index_in_final].active {
+                                        let second =
+                                            final_result.get_mut(*current_index_in_final).unwrap();
+                                        second.active = false;
+                                        let emails = second.emails.clone();
+                                        final_result[*merged_index_in_final].emails.extend(emails);
                                         current_should_be_updated = true;
+                                        current_to_change = *current_index_in_final;
+                                        others_need_change = true;
                                         *merged_index_in_final
+                                    } else {
+                                        let second =
+                                            final_result.get_mut(*merged_index_in_final).unwrap();
+                                        second.active = false;
+                                        let emails = second.emails.clone();
+                                        final_result[*current_index_in_final].emails.extend(emails);
+                                        previous_should_be_updated = true;
+                                        previous_to_change = *merged_index_in_final;
+                                        others_need_change = true;
+                                        *current_index_in_final
                                     }
                                 }
-                            }
+                                None => {
+                                    let second: Vec<String> = accounts[index]
+                                        .iter()
+                                        .skip(1)
+                                        .filter(|a| *a != address)
+                                        .cloned()
+                                        .collect();
+                                    final_result[*merged_index_in_final]
+                                        .emails
+                                        .extend(second.into_iter());
+                                    merged.insert(index);
+                                    current_should_be_updated = true;
+                                    *merged_index_in_final
+                                }
+                            },
                             None => match merged_accounts.get(&index) {
                                 Some(current_index_in_final) => {
                                     let second: Vec<String> = accounts[previous_index]
@@ -1981,28 +1981,30 @@ impl Solution {
                             },
                         };
                         if current_should_be_updated {
-                            if others_need_change{
-                                for (key,value) in merged_accounts.iter_mut(){
-                                    if *value==current_to_change{
-                                        *value=index_in_final;
+                            if others_need_change {
+                                for (key, value) in merged_accounts.iter_mut() {
+                                    if *value == current_to_change {
+                                        *value = index_in_final;
                                     }
                                 }
                             }
                             merged_accounts.insert(index, index_in_final);
                         }
                         if previous_should_be_updated {
-                            if others_need_change{
-
-                                for (key,value) in merged_accounts.iter_mut(){
-                                        if *value==previous_to_change{
-                                            *value=index_in_final;
-                                        }
+                            if others_need_change {
+                                for (key, value) in merged_accounts.iter_mut() {
+                                    if *value == previous_to_change {
+                                        *value = index_in_final;
                                     }
+                                }
                             }
                             merged_accounts.insert(previous_index, index_in_final);
                         }
-                        println!("index is {} previous index is {} address is {} merged_accounts {:?}",index,previous_index,address,merged_accounts);
-                        println!("final result is {:?}",final_result);
+                        println!(
+                            "index is {} previous index is {} address is {} merged_accounts {:?}",
+                            index, previous_index, address, merged_accounts
+                        );
+                        println!("final result is {:?}", final_result);
                     }
                 }
             }
@@ -2037,83 +2039,359 @@ impl Solution {
     }
 }
 
-
 impl Solution {
     pub fn accounts_merge(accounts: Vec<Vec<String>>) -> Vec<Vec<String>> {
-        let mut disjoint_set=UnionFind::new(accounts.len());
-        let mut email_map=HashMap::new();
-        for (index,account) in accounts.iter().enumerate(){
-            for address in account.iter().skip(1){
-                if let Some(existing_index)=email_map.insert(address, index){
-                    if existing_index==index{
+        let mut disjoint_set = UnionFind::new(accounts.len());
+        let mut email_map = HashMap::new();
+        for (index, account) in accounts.iter().enumerate() {
+            for address in account.iter().skip(1) {
+                if let Some(existing_index) = email_map.insert(address, index) {
+                    if existing_index == index {
                         continue;
-                    }else{
+                    } else {
                         disjoint_set.union(existing_index, index);
-
                     }
-                    
                 }
             }
-
         }
-        let mut accounts_map=HashMap::new();
-        for (key,value) in email_map{
-            let root=disjoint_set.find(value);
-            accounts_map.entry(root).and_modify(|a:&mut Vec<String>|{a.push(key.to_string())}).or_insert(vec![key.to_string()]);
+        let mut accounts_map = HashMap::new();
+        for (key, value) in email_map {
+            let root = disjoint_set.find(value);
+            accounts_map
+                .entry(root)
+                .and_modify(|a: &mut Vec<String>| a.push(key.to_string()))
+                .or_insert(vec![key.to_string()]);
         }
-        let mut final_result= Vec::new();
-        for (key,mut value) in accounts_map{
-            let mut account=vec![accounts[key][0].clone()];
+        let mut final_result = Vec::new();
+        for (key, mut value) in accounts_map {
+            let mut account = vec![accounts[key][0].clone()];
             value.sort();
             account.append(&mut value);
             final_result.push(account);
-
         }
         final_result
     }
 }
 
-
 impl Solution {
     pub fn sort_colors_bucket_sort(nums: &mut Vec<i32>) {
-        let mut buckets:Vec<i32>=vec![0;3];
+        let mut buckets: Vec<i32> = vec![0; 3];
 
-        for num in nums.iter(){
-            buckets[*num as usize]+=1;
+        for num in nums.iter() {
+            buckets[*num as usize] += 1;
         }
-        let mut i=0;
-        for (index,bucket) in buckets.iter_mut().enumerate(){
-            while *bucket>0{
-                nums[i]=index as i32;
-                i+=1;
-                *bucket-=1;
- 
+        let mut i = 0;
+        for (index, bucket) in buckets.iter_mut().enumerate() {
+            while *bucket > 0 {
+                nums[i] = index as i32;
+                i += 1;
+                *bucket -= 1;
             }
-
         }
-        
     }
 }
 
 impl Solution {
     pub fn sort_colors(nums: &mut Vec<i32>) {
-        let mut left_pointer=0;
-        let mut right_pointer=nums.len()-1;
-        let mut i=0;
+        let mut left_pointer = 0;
+        let mut right_pointer = nums.len() - 1;
+        let mut i = 0;
 
-        while i<=right_pointer{
-            if nums[i]==0{
+        while i <= right_pointer {
+            if nums[i] == 0 {
                 nums.swap(left_pointer, i);
-                left_pointer+=1;
-                i+=1;
-            }else if nums[i]==2{
+                left_pointer += 1;
+                i += 1;
+            } else if nums[i] == 2 {
                 nums.swap(right_pointer, i);
-                right_pointer-=1;
-            }else{
-                i+=1;
-
+                right_pointer -= 1;
+            } else {
+                i += 1;
             }
         }
+    }
+}
+
+impl Solution {
+    pub fn word_break_wrong(s: String, word_dict: Vec<String>) -> bool {
+        let mut intervals = Vec::new();
+        for word in word_dict {
+            let word_len = word.len();
+            let mut start = 1;
+            while let Some(position) = &s[start..].find(&word) {
+                let starting_interval = position + start - 1;
+                let closing_interval = starting_interval + word_len - 1;
+                intervals.push((starting_interval, closing_interval));
+                start = closing_interval + 1;
+            }
+        }
+        intervals.sort_by(|a, b| a.0.cmp(&b.0));
+        for (index, interval) in intervals.iter().enumerate() {
+            let index_plus_1 = index + 1;
+            if index_plus_1 >= intervals.len() {
+                break;
+            }
+            if interval.1 > intervals[index + 1].0 {
+                return false;
+            }
+        }
+        true
+    }
+}
+
+impl Solution {
+    pub fn word_break(s: String, word_dict: Vec<String>) -> bool {
+        let s_len = s.len();
+        let mut word_break = vec![false; s_len + 1];
+        word_break[s_len] = true;
+
+        let mut i = (s_len - 1) as i32;
+        while i >= 0 {
+            let index = i as usize;
+            for word in word_dict.iter() {
+                if index + word.len() < s.len() && &s[index..index + word.len()] == word {
+                    word_break[index] = word_break[index + word.len()];
+                }
+                if word_break[index] {
+                    break;
+                }
+            }
+            i -= 1;
+        }
+        word_break[0]
+    }
+}
+
+impl Solution {
+    pub fn can_partition_recursion_with_memoization(nums: Vec<i32>) -> bool {
+        let sum: i32 = nums.iter().sum();
+        if sum % 2 == 1 {
+            return false;
+        }
+        let target = sum / 2;
+        let mut calculated: HashMap<(usize, i32), bool> = HashMap::new();
+
+        Solution::find_subset_sum(target, &nums, 0, 0, &mut calculated)
+    }
+    pub fn find_subset_sum(
+        target: i32,
+        nums: &Vec<i32>,
+        index: usize,
+        sum: i32,
+        cache: &mut HashMap<(usize, i32), bool>,
+    ) -> bool {
+        if sum > target {
+            return false;
+        }
+        if index >= nums.len() {
+            return false;
+        }
+        if sum == target {
+            return true;
+        }
+        if let Some(value) = cache.get(&(index, sum)) {
+            return *value;
+        }
+        let take = Solution::find_subset_sum(target, nums, index + 1, sum + nums[index], cache);
+        if take {
+            cache.insert((index, sum), take);
+            return take;
+        }
+        let not_take = Solution::find_subset_sum(target, nums, index + 1, sum, cache);
+        let has_sum = take || not_take;
+        cache.insert((index, sum), has_sum);
+        take || not_take
+    }
+}
+
+impl Solution {
+    pub fn can_partition_dp(nums: Vec<i32>) -> bool {
+        let sum: i32 = nums.iter().sum();
+        if sum % 2 == 1 {
+            return false;
+        }
+        let target = sum / 2;
+        let mut sums = HashSet::<i32>::with_capacity(target as usize);
+        sums.insert(0);
+
+        for num in nums.into_iter().rev() {
+            let mut new_sums = Vec::new();
+            for sum in sums.iter() {
+                let new_sum = num + sum;
+                if new_sum == target {
+                    return true;
+                }
+                new_sums.push(new_sum);
+            }
+            sums.extend(new_sums.iter());
+        }
+
+        false
+    }
+}
+
+impl Solution {
+    pub fn can_partition(nums: Vec<i32>) -> bool {
+        let sum: i32 = nums.iter().sum();
+        if sum % 2 == 1 {
+            return false;
+        }
+        let target = (sum / 2) as usize;
+        let mut sum_dp = vec![false; target + 1];
+        if nums.iter().any(|&n| n as usize == target) {
+            return true;
+        }
+        if nums[0] <= target as i32 {
+            sum_dp[nums[0] as usize] = true;
+        }
+        for num in nums.into_iter().skip(1) {
+            let num = num as usize;
+            if num > target {
+                continue;
+            }
+            sum_dp[target] = sum_dp[target - num] || sum_dp[target];
+            if sum_dp[target] {
+                return true;
+            }
+            for index in (num..target).rev() {
+                sum_dp[index] = sum_dp[index - num] || sum_dp[index];
+            }
+        }
+        sum_dp[target]
+    }
+}
+
+impl Solution {
+    pub fn my_atoi(s: String) -> i32 {
+        let mut split_text = s.split_whitespace();
+        let mut numbers = String::new();
+        let mut sign_found=false;
+
+        let first_item = match split_text.next() {
+            Some(val) => val,
+            None => return 0,
+        };
+        let chars = first_item.chars();
+        for character in chars {
+             if character.is_numeric() {
+                numbers.push(character);
+            }else if character=='-' || character=='+'{
+                if !sign_found&&numbers.is_empty(){
+                    numbers.push(character);
+                    sign_found=true;
+                }else{
+                    let final_number:i32 = match numbers.parse() {
+                    Ok(val) => val,
+                    Err(err) => {
+                        match err.kind(){
+                            std::num::IntErrorKind::PosOverflow => {
+                                return i32::MAX;
+                            },
+                            std::num::IntErrorKind::NegOverflow => {
+                                return i32::MIN;
+                            },
+                            
+                            _ => return 0
+                        }
+                        
+                    }
+                };
+                return final_number;
+
+                }
+
+            }else {
+                let final_number:i32 = match numbers.parse() {
+                    Ok(val) => val,
+                    Err(err) => {
+                        match err.kind(){
+                            std::num::IntErrorKind::PosOverflow => {
+                                return i32::MAX;
+                            },
+                            std::num::IntErrorKind::NegOverflow => {
+                                return i32::MIN;
+                            },
+                            
+                            _ => return 0
+                        }
+                        
+                    }
+                };
+                return final_number;
+            }
+        }
+
+        let final_number:i32 = match numbers.parse() {
+            Ok(val) => val,
+            Err(err) => {
+                match err.kind(){
+                            std::num::IntErrorKind::PosOverflow => {
+                                return i32::MAX;
+                            },
+                            std::num::IntErrorKind::NegOverflow => {
+                                return i32::MIN;
+                            },
+                            
+                            _ => return 0
+                        }
+            }
+        };
+        final_number
+    }
+}
+
+
+impl Solution {
+    pub fn spiral_order(matrix: Vec<Vec<i32>>) -> Vec<i32> {
+        let m=matrix.len();
+        let n=matrix[0].len();
+        let mut previous_horizontal_movement:i32=1;
+        let mut horizontal_movement:i32=1;
+        let mut final_result=Vec::new();
+        let mut vertical_movement:i32=0;
+        let mut i:i32=0;
+        let mut j:i32=0;
+        let mut previous_vertical_movement:i32=-1;
+        let mut visited_no=0;
+        let mut visited:HashSet<(i32,i32)>=HashSet::new();
+        while visited_no<(m*n){
+            visited.insert((i,j));
+            if horizontal_movement!=0{
+                final_result.push(matrix[i as usize][j as usize]);
+                j+=horizontal_movement;
+                visited_no+=1;
+                if j>=n as i32 || j<0 || visited.contains(&(i,j)){
+                    println!("n is {n} and j is {j}");
+                    j-=horizontal_movement;
+                    previous_horizontal_movement=horizontal_movement;
+                    horizontal_movement=0;
+                    vertical_movement = -previous_vertical_movement;
+                    i+=vertical_movement;
+
+                }
+
+            }else if vertical_movement!=0{
+                println!("j is {j} i is {i}");
+                final_result.push(matrix[i as usize][j as usize]);
+                i+=vertical_movement;
+                visited_no+=1;
+                if i>=m as i32 || i<0 || visited.contains(&(i,j)) {
+                    i-=vertical_movement;
+                    previous_vertical_movement=vertical_movement;
+                    vertical_movement=0;
+                    horizontal_movement = -previous_horizontal_movement;
+                    j+=horizontal_movement;
+
+                }
+
+            }
+            println!("final result {:?}",final_result);
+
+        }
+        final_result
         
     }
 }
+
+
+
