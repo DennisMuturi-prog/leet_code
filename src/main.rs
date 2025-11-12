@@ -2524,3 +2524,128 @@ impl Solution {
         visible
     }
 }
+
+
+impl Solution {
+    pub fn longest_palindromic_substring(s: String) -> String {
+        let chars:Vec<char>=s.chars().collect();
+        let chars_len=chars.len();
+        let mut result=(chars_len,chars_len);
+        for i in 0..chars_len{
+            let mut left=i;
+            let mut right=i;
+            while right<chars_len&&chars[left]==chars[right]{
+                
+                if (right-left)>(result.1-result.0){
+                    result=(left,right);
+                    if (right-left+1)==chars_len{
+                        return chars[result.0..=result.1].into_iter().collect();
+                        
+                    }
+                }
+                if left==0{
+                    break;
+
+                }
+                left-=1;
+                right+=1;
+
+            }
+            let mut left=i;
+            let mut right=i+1;
+            while right<chars_len&&chars[left]==chars[right]{
+                if (right-left)>(result.1-result.0){
+                    result=(left,right);
+                }
+                if left==0{
+                    break;
+
+                }
+                left-=1;
+                right+=1;
+
+            }
+
+        }
+        if result.0==chars_len{
+            return String::from(chars[0]);
+        }
+        let longest:String=chars[result.0..=result.1].into_iter().collect();
+        longest
+        
+        
+    }
+    pub fn find_sub_strings(
+        index: usize,
+        chars: &[char],
+        paths: &mut Vec<String>,
+        path: &mut Vec<char>,
+        include_current_number: bool,
+    ) {
+        if index >= chars.len() {
+            return;
+        }
+        if include_current_number {
+            path.push(chars[index]);
+        }
+        if index + 1 >= chars.len() {
+            paths.push(path.iter().collect());
+        }
+        Solution::find_sub_strings(index + 1, chars, paths, path, true);
+        Solution::find_sub_strings(index + 1, chars, paths, path, false);
+        if include_current_number {
+            path.pop();
+        }
+    }
+
+    pub fn valid_palindrome(word:&str)->bool{
+        if word.is_empty(){
+            return false;
+        }
+        let chars:Vec<char>=word.chars().map(|a|a.to_ascii_uppercase()).collect();
+        let mut right=chars.len()-1;
+        let mut left=0;
+
+        while left<right{
+            if chars[left]!=chars[right]{
+                return false;
+            }
+            left+=1;
+            right-=1;
+        }
+        true
+
+    }
+        
+    
+}
+
+
+impl Solution {
+    pub fn unique_paths(m: i32, n: i32) -> i32 {
+        let mut possible_paths=vec![1;n as usize];
+        let mut i=m-2;
+        while i>=0{
+            let mut j=n-2;
+            while j>=0{
+                let mut no_of_paths=0;
+                if j+1<n{
+                    no_of_paths+=possible_paths[(j+1) as usize];
+                }
+                if i+1<m{
+                    no_of_paths+=possible_paths[j as usize];
+                }
+                possible_paths[j as usize]=no_of_paths;
+                j-=1;
+
+
+            }
+            i-=1;
+            
+
+
+        }
+        possible_paths[0]
+        
+    }
+}
