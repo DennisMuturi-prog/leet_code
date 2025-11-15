@@ -2649,3 +2649,57 @@ impl Solution {
         
     }
 }
+
+impl Solution {
+    pub fn build_tree(preorder: Vec<i32>, inorder: Vec<i32>) -> Option<Rc<RefCell<TreeNode>>> {
+        Solution::build_binary_tree(&preorder, &inorder)
+        
+        
+    }
+    pub fn build_binary_tree(preorder: &[i32], inorder: &[i32])->Option<Rc<RefCell<TreeNode>>> {
+        if preorder.is_empty() || inorder.is_empty(){
+            return None;
+        }
+
+        let node=Rc::new(RefCell::new(TreeNode::new(preorder[0])));
+
+        let mid=inorder.iter().position(|&x|x==preorder[0]).unwrap();
+        let left=Solution::build_binary_tree(&preorder[1..=mid], &inorder[..mid]);
+        let right=Solution::build_binary_tree(&preorder[mid+1..], &inorder[mid+1..]);
+
+        node.borrow_mut().left=left;
+        node.borrow_mut().right=right;
+        Some(node)
+
+
+    }
+}
+
+impl Solution {
+    pub fn max_area(height: Vec<i32>) -> i32 {
+        let mut max_area=0;
+        let mut left=0;
+        let mut right=(height.len()-1) as i32;
+        while left<right{
+            let left_pointer=left as usize;
+            let right_pointer=right as usize;
+            let left_height=height[left_pointer];
+            let right_height=height[right_pointer];
+            let height=min(left_height, right_height);
+            let width=right-left;
+            let new_area=width*height;
+            if new_area>max_area{
+                max_area=new_area;
+            }
+            if left_height<right_height{
+                left+=1;
+            }else{
+                right-=1;
+            }
+            
+
+        }
+        max_area
+        
+    }
+}
